@@ -891,7 +891,6 @@ header {
   <button class="nav-tab t-gold"       onclick="switchTab('matches')"   id="tabMatches">🤝 Deal Matches <span class="nav-badge o" id="badgeMatches">0</span></button>
   <button class="nav-tab t-purple"     onclick="switchTab('preleased')" id="tabPreleased">🏢 Pre-Leased</button>
   <button class="nav-tab t-blue"       onclick="switchTab('caprates')"  id="tabCaprates">📊 Cap Rates</button>
-  <button class="nav-tab"              onclick="switchTab('config')"    id="tabConfig">⚙ Config</button>
 </div>
 
 <!-- ═══════════════════════════════════
@@ -1048,29 +1047,27 @@ header {
 <!-- ═══════════════════════════════════
      PANEL: CONFIG
      ═══════════════════════════════════ -->
-<div class="panel" id="panelConfig">
-  <div style="padding:20px;max-width:500px">
-    <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.25em;color:var(--red);margin-bottom:16px;">⚙ CONFIGURATION</div>
-    <div class="cfg-form">
-      <div class="cfg-row">
-        <label class="cfg-lbl">Supabase URL</label>
-        <input class="cfg-input" id="cfgUrl" placeholder="https://xxxx.supabase.co" />
-      </div>
-      <div class="cfg-row">
-        <label class="cfg-lbl">Supabase Anon Key</label>
-        <input class="cfg-input" id="cfgKey" type="password" placeholder="eyJ..." />
-      </div>
-      <button class="cfg-btn" onclick="saveConfig()">CONNECT TO SUPABASE</button>
-      <div class="cfg-status" id="cfgStatus"></div>
-      <hr style="border-color:var(--border);margin:4px 0">
-      <div style="font-family:var(--mono);font-size:8px;color:var(--text-3);letter-spacing:0.12em;">
-        Credentials stored in localStorage. Never sent anywhere except your Supabase instance.
-      </div>
-    </div>
-  </div>
-</div>
 
 <script>
+// ═══════════════════════════════════════════════════════════════════
+// URL OPENER — works on local file:// AND hosted
+// ═══════════════════════════════════════════════════════════════════
+function openUrl(url) {
+  if (!url || url === '#') return;
+  // Try window.open first
+  const w = window.open(url, '_blank');
+  // If blocked (local file, popup blocker), fall back to anchor click
+  if (!w || w.closed || typeof w.closed === 'undefined') {
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // CONFIG & SUPABASE
 // ═══════════════════════════════════════════════════════════════════
@@ -1215,6 +1212,9 @@ async function loadAll() {
         sbGet('cap_rate_snapshots', { order:'snapshot_date.desc,micro_market.asc', limit:'200' }),
         sbGet('investor_mandates', { select:'investor_name,min_deal_size_cr,max_deal_size_cr,min_cap_rate_pct,preferred_cities', 'is_active':'eq.true', limit:'20' }),
       ]);
+      // Cap rates: always show baseline data even if Supabase table is empty
+      if (!capData || capData.length === 0) capData = getMockCapRates();
+      if (!investors || investors.length === 0) investors = getMockInvestors();
     } else {
       supplyData = getMockSupply();
       demandData = getMockDemand();
@@ -1301,7 +1301,7 @@ function renderSupply() {
   let data = supplyData.filter(e => {
     if (chanF && e.channel !== chanF) return false;
     if (sevF  && e.severity !== sevF) return false;
-    if (search && !e.company_name?.toLowerCase().includes(search) && !e.location?.toLowerCase().includes(search)) return false;
+    if (search && !e.company_name?.toLowerCase().includes(search) && !e.location?.toLowerCase().includes(search) && !(e.source||'').toLowerCase().includes(search)) return false;
     return true;
   });
 
@@ -1320,7 +1320,7 @@ function renderSupply() {
     const dt = e.detected_at ? new Date(e.detected_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '';
 
     html += `<div class="ev-card c-${ch === 'sarfaesi' ? 'red' : ch === 'bank_auction' ? 'amber' : ch === 'drt' ? 'blue' : ch === 'arc_portfolio' ? 'purple' : 'dim'}"
-               onclick="window.open('${esc(e.url||'#')}','_blank')" title="${esc(e.headline||'')}">
+               style="cursor:pointer" onclick="openUrl('${esc(e.url||'')}');" title="${esc(e.headline||'')}">`
       <div class="ev-score">
         <div class="ev-score-num" style="color:${sc}">${score}</div>
         <div class="ev-score-lbl" style="color:${sc}">SCORE</div>
@@ -1365,7 +1365,7 @@ function renderDemand() {
   let data = demandData.filter(d => {
     if (sigF && d.signal_type !== sigF) return false;
     if (urgF && d.urgency !== urgF)     return false;
-    if (search && !d.company_name?.toLowerCase().includes(search) && !d.location?.toLowerCase().includes(search)) return false;
+    if (search && !d.company_name?.toLowerCase().includes(search) && !d.location?.toLowerCase().includes(search) && !(d.data_source||'').toLowerCase().includes(search)) return false;
     return true;
   });
 
@@ -1380,7 +1380,7 @@ function renderDemand() {
     const sqft = d.sqft_mentioned ? ` · ${(d.sqft_mentioned/1000).toFixed(0)}k sqft` : '';
     const funding = d.funding_amount_cr ? ` · ₹${parseFloat(d.funding_amount_cr).toFixed(0)}Cr raised` : '';
 
-    html += `<div class="ds-card">
+    html += `<div class="ds-card" style="cursor:${d.source_url?'pointer':'default'}" onclick="${d.source_url?`openUrl('${esc(d.source_url||'')}');`:''}">
       <div class="ds-head">
         <div>
           <span class="ds-company">${esc(d.company_name||'Unknown')}</span>
@@ -1585,7 +1585,10 @@ function renderSidebar() {
   supplyData.forEach(e => { const s = e.source||'Unknown'; srcMap[s] = (srcMap[s]||0)+1; });
   const topSrc = Object.entries(srcMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
   document.getElementById('topSources').innerHTML = topSrc.map(([name, ct]) =>
-    `<div class="src-row"><span class="src-name">${esc(name)}</span><span class="src-ct">${ct}</span></div>`
+    `<div class="src-row" style="cursor:pointer" onclick="filterBySource('${esc(name)}')" title="Click to filter by ${esc(name)}">
+      <span class="src-name">${esc(name)}</span>
+      <span class="src-ct">${ct}</span>
+    </div>`
   ).join('');
 
   // Investors
@@ -1615,14 +1618,20 @@ function renderSidebar() {
   const cityMap = {};
   demandData.forEach(d => { const c = (d.location||'Unknown').split(',')[0].trim(); cityMap[c] = (cityMap[c]||0)+1; });
   document.getElementById('cityList').innerHTML = Object.entries(cityMap).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([c,n]) =>
-    `<div class="src-row"><span class="src-name">${esc(c)}</span><span class="src-ct">${n}</span></div>`
+    `<div class="src-row" style="cursor:pointer" onclick="filterDemandByCity('${esc(c)}')" title="Filter demand by ${esc(c)}">
+      <span class="src-name">${esc(c)}</span>
+      <span class="src-ct">${n}</span>
+    </div>`
   ).join('');
 
   // Demand sources
   const dsMap = {};
   demandData.forEach(d => { const s = d.data_source||'RSS'; dsMap[s] = (dsMap[s]||0)+1; });
   document.getElementById('demandSources').innerHTML = Object.entries(dsMap).sort((a,b)=>b[1]-a[1]).map(([s,n]) =>
-    `<div class="src-row"><span class="src-name">${esc(s)}</span><span class="src-ct">${n}</span></div>`
+    `<div class="src-row" style="cursor:pointer" onclick="filterDemandByDataSource('${esc(s)}')" title="Filter by ${esc(s)}">
+      <span class="src-name">${esc(s)}</span>
+      <span class="src-ct">${n}</span>
+    </div>`
   ).join('');
 }
 
@@ -1650,7 +1659,7 @@ function updateTicker() {
 // TAB SWITCHING
 // ═══════════════════════════════════════════════════════════════════
 function switchTab(name) {
-  const panels = ['supply','demand','matches','preleased','caprates','config'];
+  const panels = ['supply','demand','matches','preleased','caprates'];
   panels.forEach(p => {
     document.getElementById(`panel${p.charAt(0).toUpperCase()+p.slice(1)}`)?.classList.remove('active');
     document.getElementById(`tab${p.charAt(0).toUpperCase()+p.slice(1)}`)?.classList.remove('active');
@@ -1679,6 +1688,27 @@ initFilterGroup('urgFilter',  'g', renderDemand);
 initFilterGroup('matchStatusFilter', 'o', renderMatches);
 initFilterGroup('plaMarketFilter', 'b', renderPreleased);
 initFilterGroup('capFilter', 'b', renderCapRates);
+
+// ═══════════════════════════════════════════════════════════════════
+// SIDEBAR CLICK FILTERS
+// ═══════════════════════════════════════════════════════════════════
+function filterBySource(sourceName) {
+  // Switch to supply tab and filter search by source name
+  switchTab('supply');
+  const searchEl = document.getElementById('supplySearch');
+  if (searchEl) { searchEl.value = sourceName; renderSupply(); }
+}
+function filterDemandByCity(city) {
+  switchTab('demand');
+  const searchEl = document.getElementById('demandSearch');
+  if (searchEl) { searchEl.value = city; renderDemand(); }
+}
+function filterDemandByDataSource(src) {
+  // Filter demand feed — highlight the matching data_source
+  switchTab('demand');
+  const searchEl = document.getElementById('demandSearch');
+  if (searchEl) { searchEl.value = src; renderDemand(); }
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // BOOT

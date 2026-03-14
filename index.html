@@ -7,13 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════════════════════
-   NEXUS ASIA INTEL — THE GODFATHER DASHBOARD
-   Aesthetic: Obsidian war room. Both sides of every deal —
-   who is selling (red), who is buying (green), where
-   they cross (gold). One screen. One edge.
-   ═══════════════════════════════════════════════════════ */
-
 :root {
   --bg:          #080809;
   --bg-2:        #0e0e10;
@@ -23,43 +16,31 @@
   --border:      #1e1e28;
   --border-2:    #2a2a38;
   --border-3:    #363648;
-
   --text-1:      #eeeef4;
   --text-2:      #9090a8;
   --text-3:      #555568;
   --text-4:      #333344;
-
-  /* Supply — blood red */
   --red:         #e8253a;
   --red-dim:     rgba(232,37,58,0.12);
   --red-glow:    0 0 24px rgba(232,37,58,0.25);
-
-  /* Demand — electric green */
   --green:       #00d4a0;
   --green-dim:   rgba(0,212,160,0.10);
   --green-glow:  0 0 24px rgba(0,212,160,0.2);
-
-  /* Match — gold */
   --gold:        #f5c518;
   --gold-dim:    rgba(245,197,24,0.10);
   --gold-glow:   0 0 24px rgba(245,197,24,0.2);
-
-  /* Supporting */
   --blue:        #4d8fff;
   --blue-dim:    rgba(77,143,255,0.10);
   --purple:      #9b59b6;
   --purple-dim:  rgba(155,89,182,0.10);
   --amber:       #f5a623;
   --amber-dim:   rgba(245,166,35,0.10);
-
   --mono:        'Space Mono', monospace;
   --syne:        'Syne', sans-serif;
   --radius:      3px;
 }
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
-
 body {
   background: var(--bg);
   color: var(--text-1);
@@ -68,8 +49,6 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
 }
-
-/* Scanline texture */
 body::after {
   content: '';
   position: fixed;
@@ -78,14 +57,10 @@ body::after {
   pointer-events: none;
   z-index: 9998;
 }
-
-/* ── SCROLLBAR ──────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: var(--bg-2); }
 ::-webkit-scrollbar-thumb { background: var(--border-3); border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
-
-/* ── TICKER ─────────────────────────────────────── */
 .ticker {
   height: 26px;
   background: #0a0a0a;
@@ -130,8 +105,6 @@ body::after {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
-
-/* ── HEADER ─────────────────────────────────────── */
 header {
   padding: 18px 28px 16px;
   border-bottom: 1px solid var(--border);
@@ -141,11 +114,7 @@ header {
   gap: 20px;
   background: linear-gradient(180deg, #0a0a0c 0%, var(--bg) 100%);
 }
-.logo {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
+.logo { display: flex; flex-direction: column; gap: 1px; }
 .logo-eyebrow {
   font-family: var(--mono);
   font-size: 8px;
@@ -237,8 +206,6 @@ header {
   color: var(--text-3);
   letter-spacing: 0.05em;
 }
-
-/* ── STAT ROW ───────────────────────────────────── */
 .stat-row {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -293,8 +260,6 @@ header {
   margin-top: 3px;
   letter-spacing: 0.05em;
 }
-
-/* ── NAV TABS ───────────────────────────────────── */
 .nav-bar {
   display: flex;
   align-items: stretch;
@@ -345,8 +310,6 @@ header {
 .nav-badge.g { background: var(--green); color: #000; }
 .nav-badge.o { background: var(--gold); color: #000; }
 .nav-badge.b { background: var(--blue); }
-
-/* ── PANEL ──────────────────────────────────────── */
 .panel { display: none; }
 .panel.active { display: block; }
 .panel-inner {
@@ -356,8 +319,6 @@ header {
 }
 .panel-main { border-right: 1px solid var(--border); overflow: hidden; }
 .panel-side { overflow: hidden; }
-
-/* ── TOOLBAR ────────────────────────────────────── */
 .toolbar {
   padding: 10px 18px;
   border-bottom: 1px solid var(--border);
@@ -412,11 +373,7 @@ header {
 .tb-search::placeholder { color: var(--text-3); }
 .tb-search:focus { border-color: var(--red); }
 .tb-search.g:focus { border-color: var(--green); }
-
-/* ── FEED ───────────────────────────────────────── */
 .feed { padding: 12px; display: flex; flex-direction: column; gap: 6px; }
-
-/* Supply event card */
 .ev-card {
   background: var(--bg-2);
   border: 1px solid var(--border);
@@ -511,9 +468,6 @@ header {
 }
 .ev-meta .price  { color: var(--green); }
 .ev-meta .loc    { color: var(--text-2); }
-.ev-meta .date   { }
-
-/* Demand signal card */
 .ds-card {
   background: var(--bg-2);
   border: 1px solid var(--border);
@@ -565,8 +519,6 @@ header {
   font-size: 8px;
   color: var(--text-3);
 }
-
-/* Match card */
 .match-card {
   background: var(--bg-2);
   border: 1px solid var(--border);
@@ -637,8 +589,6 @@ header {
   border-radius: var(--radius);
   line-height: 1.4;
 }
-
-/* Cap rate card */
 .cap-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -665,8 +615,6 @@ header {
 .cap-card.above .cap-rate { color: var(--green); }
 .cap-card.below .cap-rate { color: var(--amber); }
 .cap-meta { font-family: var(--mono); font-size: 8px; color: var(--text-3); margin-top: 5px; line-height: 1.8; }
-
-/* Pre-leased card */
 .pla-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -690,12 +638,8 @@ header {
 .pla-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px; }
 .pla-row span { font-family: var(--mono); font-size: 8px; color: var(--text-3); }
 .pla-tenant { font-size: 11px; color: var(--text-2); margin-top: 6px; }
-
-/* Sidebar */
 .sidebar { padding: 0; }
-.side-section {
-  border-bottom: 1px solid var(--border);
-}
+.side-section { border-bottom: 1px solid var(--border); }
 .side-hd {
   font-family: var(--mono);
   font-size: 8px;
@@ -710,8 +654,6 @@ header {
 .side-hd::before { content: '▸'; color: var(--red); font-size: 8px; }
 .side-hd.g::before { color: var(--green); }
 .side-hd.o::before { color: var(--gold); }
-
-/* Severity bars */
 .sev-row {
   display: flex;
   align-items: center;
@@ -726,8 +668,6 @@ header {
 .sev-bar.med   { background: var(--blue); }
 .sev-bar.low   { background: var(--text-3); }
 .sev-num { font-family: var(--mono); font-size: 9px; color: var(--text-2); min-width: 24px; text-align: right; }
-
-/* Source rows */
 .src-row {
   display: flex;
   align-items: center;
@@ -738,8 +678,6 @@ header {
 .src-row:hover { background: var(--bg-3); }
 .src-name { font-family: var(--mono); font-size: 9px; color: var(--text-2); }
 .src-ct   { font-family: var(--mono); font-size: 9px; color: var(--text-3); }
-
-/* Investor mandate */
 .inv-card {
   margin: 6px 14px;
   background: var(--bg-3);
@@ -750,8 +688,6 @@ header {
 .inv-name { font-family: var(--syne); font-size: 11px; font-weight: 600; margin-bottom: 3px; }
 .inv-meta { font-family: var(--mono); font-size: 8px; color: var(--text-3); line-height: 1.7; }
 .inv-meta .cap { color: var(--green); }
-
-/* Empty / loading */
 .empty {
   font-family: var(--mono);
   font-size: 10px;
@@ -760,50 +696,6 @@ header {
   padding: 48px 24px;
   text-align: center;
 }
-
-/* Config panel */
-.cfg-form { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
-.cfg-row { display: flex; flex-direction: column; gap: 4px; }
-.cfg-lbl { font-family: var(--mono); font-size: 8px; letter-spacing: 0.18em; color: var(--text-3); text-transform: uppercase; }
-.cfg-input {
-  background: var(--bg-3);
-  border: 1px solid var(--border-2);
-  color: var(--text-1);
-  font-family: var(--mono);
-  font-size: 10px;
-  padding: 7px 10px;
-  outline: none;
-  transition: border-color 0.15s;
-  border-radius: var(--radius);
-  width: 100%;
-}
-.cfg-input:focus { border-color: var(--red); }
-.cfg-input.g:focus { border-color: var(--green); }
-.cfg-btn {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.15em;
-  padding: 9px 16px;
-  background: var(--red);
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  transition: opacity 0.15s;
-  text-transform: uppercase;
-  border-radius: var(--radius);
-  width: 100%;
-}
-.cfg-btn:hover { opacity: 0.85; }
-.cfg-btn.g { background: var(--green); color: #000; }
-.cfg-status {
-  font-family: var(--mono);
-  font-size: 9px;
-  color: var(--green);
-  letter-spacing: 0.1em;
-  min-height: 16px;
-}
-
-/* Responsive */
 @media (max-width: 900px) {
   .panel-inner { grid-template-columns: 1fr; }
   .panel-side   { display: none; }
@@ -814,15 +706,11 @@ header {
 </head>
 <body>
 
-<!-- TICKER -->
 <div class="ticker">
   <div class="ticker-tag">NEXUS LIVE</div>
-  <div class="ticker-scroll" id="tickerScroll">
-    <!-- filled by JS -->
-  </div>
+  <div class="ticker-scroll" id="tickerScroll"></div>
 </div>
 
-<!-- HEADER -->
 <header>
   <div class="logo">
     <div class="logo-eyebrow">THE GODFATHER</div>
@@ -850,7 +738,6 @@ header {
   </div>
 </header>
 
-<!-- STAT ROW -->
 <div class="stat-row">
   <div class="stat s-red">
     <div class="stat-lbl">Critical Distress</div>
@@ -884,7 +771,6 @@ header {
   </div>
 </div>
 
-<!-- NAV -->
 <div class="nav-bar">
   <button class="nav-tab active"       onclick="switchTab('supply')"    id="tabSupply">🔴 Supply Feed <span class="nav-badge" id="badgeSupply">0</span></button>
   <button class="nav-tab t-green"      onclick="switchTab('demand')"    id="tabDemand">🟢 Demand Feed <span class="nav-badge g" id="badgeDemand">0</span></button>
@@ -893,9 +779,7 @@ header {
   <button class="nav-tab t-blue"       onclick="switchTab('caprates')"  id="tabCaprates">📊 Cap Rates</button>
 </div>
 
-<!-- ═══════════════════════════════════
-     PANEL: SUPPLY FEED
-     ═══════════════════════════════════ -->
+<!-- SUPPLY PANEL -->
 <div class="panel active" id="panelSupply">
   <div class="panel-inner">
     <div class="panel-main">
@@ -938,9 +822,7 @@ header {
   </div>
 </div>
 
-<!-- ═══════════════════════════════════
-     PANEL: DEMAND FEED
-     ═══════════════════════════════════ -->
+<!-- DEMAND PANEL -->
 <div class="panel" id="panelDemand">
   <div class="panel-inner">
     <div class="panel-main">
@@ -983,9 +865,7 @@ header {
   </div>
 </div>
 
-<!-- ═══════════════════════════════════
-     PANEL: DEAL MATCHES
-     ═══════════════════════════════════ -->
+<!-- MATCHES PANEL -->
 <div class="panel" id="panelMatches">
   <div class="toolbar">
     <span class="tb-label">Status</span>
@@ -1007,9 +887,7 @@ header {
   <div class="feed" id="matchFeed"><div class="empty">LOADING DEAL MATCHES...</div></div>
 </div>
 
-<!-- ═══════════════════════════════════
-     PANEL: PRE-LEASED
-     ═══════════════════════════════════ -->
+<!-- PRE-LEASED PANEL -->
 <div class="panel" id="panelPreleased">
   <div class="toolbar">
     <span class="tb-label">Market</span>
@@ -1029,9 +907,7 @@ header {
   <div class="pla-grid" id="plaGrid"><div class="empty" style="grid-column:1/-1">LOADING PRE-LEASED ASSETS...</div></div>
 </div>
 
-<!-- ═══════════════════════════════════
-     PANEL: CAP RATES
-     ═══════════════════════════════════ -->
+<!-- CAP RATES PANEL -->
 <div class="panel" id="panelCaprates">
   <div class="toolbar">
     <span class="tb-label">Filter</span>
@@ -1044,34 +920,15 @@ header {
   <div class="cap-grid" id="capGrid"><div class="empty" style="grid-column:1/-1">LOADING CAP RATE MARKET DATA...</div></div>
 </div>
 
-<!-- ═══════════════════════════════════
-     PANEL: CONFIG
-     ═══════════════════════════════════ -->
-
 <script>
 // ═══════════════════════════════════════════════════════════════════
-// URL OPENER — works on local file:// AND hosted
+// PRE-CONFIGURED SUPABASE — LIVE CONNECTION
 // ═══════════════════════════════════════════════════════════════════
-function openUrl(url) {
-  if (!url || url === '#') return;
-  // Try window.open first
-  const w = window.open(url, '_blank');
-  // If blocked (local file, popup blocker), fall back to anchor click
-  if (!w || w.closed || typeof w.closed === 'undefined') {
-    const a = document.createElement('a');
-    a.href = url;
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }
-}
+let CFG = {
+  url: 'https://gzmcrngcefvikdkmlibh.supabase.co',
+  key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6bWNybmdjZWZ2aWtka21saWJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1MDg0NzEsImV4cCI6MjA4OTA4NDQ3MX0.BI1xC4AO3GFRx33wsU56hoQ1l3CC41vTWmpZi0DTS98'
+};
 
-// ═══════════════════════════════════════════════════════════════════
-// CONFIG & SUPABASE
-// ═══════════════════════════════════════════════════════════════════
-let CFG = { url: '', key: '' };
 let supplyData   = [];
 let demandData   = [];
 let matchData    = [];
@@ -1082,38 +939,48 @@ let matchMinScore = 50;
 let showThresh   = false;
 
 function loadConfig() {
+  // Keys are pre-configured above — no manual setup needed
+  // Allow localStorage override if user sets custom values
   try {
     const saved = localStorage.getItem('nxi_config');
-    if (saved) CFG = JSON.parse(saved);
-    if (CFG.url) document.getElementById('cfgUrl').value = CFG.url;
-    if (CFG.key) document.getElementById('cfgKey').value = CFG.key;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.url && parsed.url.includes('supabase.co')) CFG.url = parsed.url;
+      if (parsed.key && parsed.key.length > 100) CFG.key = parsed.key;
+    }
   } catch(e) {}
-}
-function saveConfig() {
-  CFG.url = document.getElementById('cfgUrl').value.trim().replace(/\/$/,'');
-  CFG.key = document.getElementById('cfgKey').value.trim();
-  localStorage.setItem('nxi_config', JSON.stringify(CFG));
-  document.getElementById('cfgStatus').textContent = '✓ Saved — loading data...';
-  document.getElementById('supabaseStatus').style.color = 'var(--amber)';
-  document.getElementById('supabaseStatus').textContent = '⬤ connecting';
-  loadAll();
-}
-
-async function sbGet(table, params = {}) {
-  if (!CFG.url || !CFG.key) return [];
-  const qs = new URLSearchParams({
-    apikey: CFG.key,
-    ...params
-  });
-  const r = await fetch(`${CFG.url}/rest/v1/${table}?${qs}`, {
-    headers: { apikey: CFG.key, Authorization: `Bearer ${CFG.key}` }
-  });
-  if (!r.ok) return [];
-  return r.json();
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// MOCK DATA (when no Supabase connected)
+// URL OPENER
+// ═══════════════════════════════════════════════════════════════════
+function openUrl(url) {
+  if (!url || url === '#') return;
+  const w = window.open(url, '_blank');
+  if (!w || w.closed || typeof w.closed === 'undefined') {
+    const a = document.createElement('a');
+    a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SUPABASE FETCH
+// ═══════════════════════════════════════════════════════════════════
+async function sbGet(table, params = {}) {
+  if (!CFG.url || !CFG.key) return [];
+  const qs = new URLSearchParams({ apikey: CFG.key, ...params });
+  try {
+    const r = await fetch(`${CFG.url}/rest/v1/${table}?${qs}`, {
+      headers: { apikey: CFG.key, Authorization: `Bearer ${CFG.key}` }
+    });
+    if (!r.ok) { console.warn(`sbGet ${table} failed:`, r.status); return []; }
+    return r.json();
+  } catch(e) { console.warn(`sbGet ${table} error:`, e); return []; }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MOCK DATA (fallback when tables are empty)
 // ═══════════════════════════════════════════════════════════════════
 function getMockSupply() {
   return [
@@ -1150,24 +1017,24 @@ function getMockMatches() {
 
 function getMockCapRates() {
   return [
-    {micro_market:'BKC',           asset_class:'grade_a_office', cap_rate_pct:7.26, avg_rent_psf:310, avg_price_psf:47000},
-    {micro_market:'Lower Parel',   asset_class:'grade_a_office', cap_rate_pct:7.81, avg_rent_psf:255, avg_price_psf:36000},
-    {micro_market:'Worli',         asset_class:'grade_a_office', cap_rate_pct:7.45, avg_rent_psf:240, avg_price_psf:35500},
-    {micro_market:'Andheri East',  asset_class:'grade_a_office', cap_rate_pct:7.92, avg_rent_psf:145, avg_price_psf:20200},
-    {micro_market:'Powai',         asset_class:'grade_a_office', cap_rate_pct:7.55, avg_rent_psf:125, avg_price_psf:18200},
-    {micro_market:'Malad',         asset_class:'grade_a_office', cap_rate_pct:7.71, avg_rent_psf:112, avg_price_psf:16000},
-    {micro_market:'Goregaon',      asset_class:'grade_a_office', cap_rate_pct:7.83, avg_rent_psf:115, avg_price_psf:16200},
-    {micro_market:'Vikhroli',      asset_class:'grade_b_office', cap_rate_pct:8.31, avg_rent_psf:98,  avg_price_psf:12900},
-    {micro_market:'Thane',         asset_class:'grade_a_office', cap_rate_pct:8.52, avg_rent_psf:82,  avg_price_psf:10600},
-    {micro_market:'Navi Mumbai',   asset_class:'grade_a_office', cap_rate_pct:8.67, avg_rent_psf:76,  avg_price_psf:9650},
-    {micro_market:'Airoli',        asset_class:'grade_b_office', cap_rate_pct:9.12, avg_rent_psf:70,  avg_price_psf:8450},
-    {micro_market:'Belapur',       asset_class:'grade_b_office', cap_rate_pct:9.04, avg_rent_psf:65,  avg_price_psf:7900},
-    {micro_market:'Kharghar',      asset_class:'grade_b_office', cap_rate_pct:9.45, avg_rent_psf:60,  avg_price_psf:7000},
-    {micro_market:'Pune Hinjewadi',asset_class:'grade_a_office', cap_rate_pct:8.42, avg_rent_psf:82,  avg_price_psf:10700},
-    {micro_market:'Hyderabad HiTec',asset_class:'grade_a_office',cap_rate_pct:8.15, avg_rent_psf:88,  avg_price_psf:11900},
-    {micro_market:'Bengaluru ORR', asset_class:'grade_a_office', cap_rate_pct:8.20, avg_rent_psf:92,  avg_price_psf:12320},
-    {micro_market:'Bengaluru CBD', asset_class:'grade_a_office', cap_rate_pct:7.61, avg_rent_psf:115, avg_price_psf:16600},
-    {micro_market:'Pune CBD',      asset_class:'grade_a_office', cap_rate_pct:7.95, avg_rent_psf:105, avg_price_psf:14550},
+    {micro_market:'BKC',            asset_class:'grade_a_office', cap_rate_pct:7.26, avg_rent_psf:310, avg_price_psf:47000},
+    {micro_market:'Lower Parel',    asset_class:'grade_a_office', cap_rate_pct:7.81, avg_rent_psf:255, avg_price_psf:36000},
+    {micro_market:'Worli',          asset_class:'grade_a_office', cap_rate_pct:7.45, avg_rent_psf:240, avg_price_psf:35500},
+    {micro_market:'Andheri East',   asset_class:'grade_a_office', cap_rate_pct:7.92, avg_rent_psf:145, avg_price_psf:20200},
+    {micro_market:'Powai',          asset_class:'grade_a_office', cap_rate_pct:7.55, avg_rent_psf:125, avg_price_psf:18200},
+    {micro_market:'Malad',          asset_class:'grade_a_office', cap_rate_pct:7.71, avg_rent_psf:112, avg_price_psf:16000},
+    {micro_market:'Goregaon',       asset_class:'grade_a_office', cap_rate_pct:7.83, avg_rent_psf:115, avg_price_psf:16200},
+    {micro_market:'Vikhroli',       asset_class:'grade_b_office', cap_rate_pct:8.31, avg_rent_psf:98,  avg_price_psf:12900},
+    {micro_market:'Thane',          asset_class:'grade_a_office', cap_rate_pct:8.52, avg_rent_psf:82,  avg_price_psf:10600},
+    {micro_market:'Navi Mumbai',    asset_class:'grade_a_office', cap_rate_pct:8.67, avg_rent_psf:76,  avg_price_psf:9650},
+    {micro_market:'Airoli',         asset_class:'grade_b_office', cap_rate_pct:9.12, avg_rent_psf:70,  avg_price_psf:8450},
+    {micro_market:'Belapur',        asset_class:'grade_b_office', cap_rate_pct:9.04, avg_rent_psf:65,  avg_price_psf:7900},
+    {micro_market:'Kharghar',       asset_class:'grade_b_office', cap_rate_pct:9.45, avg_rent_psf:60,  avg_price_psf:7000},
+    {micro_market:'Pune Hinjewadi', asset_class:'grade_a_office', cap_rate_pct:8.42, avg_rent_psf:82,  avg_price_psf:10700},
+    {micro_market:'Hyderabad HiTec',asset_class:'grade_a_office', cap_rate_pct:8.15, avg_rent_psf:88,  avg_price_psf:11900},
+    {micro_market:'Bengaluru ORR',  asset_class:'grade_a_office', cap_rate_pct:8.20, avg_rent_psf:92,  avg_price_psf:12320},
+    {micro_market:'Bengaluru CBD',  asset_class:'grade_a_office', cap_rate_pct:7.61, avg_rent_psf:115, avg_price_psf:16600},
+    {micro_market:'Pune CBD',       asset_class:'grade_a_office', cap_rate_pct:7.95, avg_rent_psf:105, avg_price_psf:14550},
   ];
 }
 
@@ -1195,16 +1062,13 @@ function getMockInvestors() {
 // DATA LOADING
 // ═══════════════════════════════════════════════════════════════════
 async function loadAll() {
-  const connected = CFG.url && CFG.key;
+  const connected = !!(CFG.url && CFG.key);
   document.getElementById('supabaseStatus').textContent = connected ? '⬤ live' : '⬤ demo mode';
   document.getElementById('supabaseStatus').style.color = connected ? 'var(--green)' : 'var(--amber)';
 
   try {
     if (connected) {
-      const now = new Date();
-      const cutoff14 = new Date(now - 14*24*3600000).toISOString();
-      const cutoff7  = new Date(now - 7*24*3600000).toISOString();
-      [supplyData, demandData, matchData, plaData, capData, investors] = await Promise.all([
+      const results = await Promise.all([
         sbGet('distress_events', { select:'id,company_name,signal_category,source,url,headline,deal_score,severity,asset_class,location,is_mmr,channel,price_crore,detected_at,metadata', 'is_duplicate':'eq.false', order:'deal_score.desc', limit:'300' }),
         sbGet('demand_signals',  { select:'id,company_name,signal_type,confidence_score,urgency,location,sqft_mentioned,funding_amount_cr,why_cre,suggested_action,summary,data_source,detected_at', 'is_duplicate':'eq.false', order:'confidence_score.desc', limit:'200' }),
         sbGet('v_deal_matches_full', { order:'match_score.desc', limit:'100' }),
@@ -1212,9 +1076,17 @@ async function loadAll() {
         sbGet('cap_rate_snapshots', { order:'snapshot_date.desc,micro_market.asc', limit:'200' }),
         sbGet('investor_mandates', { select:'investor_name,min_deal_size_cr,max_deal_size_cr,min_cap_rate_pct,preferred_cities', 'is_active':'eq.true', limit:'20' }),
       ]);
-      // Cap rates: always show baseline data even if Supabase table is empty
-      if (!capData || capData.length === 0) capData = getMockCapRates();
-      if (!investors || investors.length === 0) investors = getMockInvestors();
+
+      [supplyData, demandData, matchData, plaData, capData, investors] = results;
+
+      // Fall back to mock data for any empty tables
+      if (!supplyData  || supplyData.length  === 0) supplyData  = getMockSupply();
+      if (!demandData  || demandData.length  === 0) demandData  = getMockDemand();
+      if (!matchData   || matchData.length   === 0) matchData   = getMockMatches();
+      if (!plaData     || plaData.length     === 0) plaData     = getMockPreleased();
+      if (!capData     || capData.length     === 0) capData     = getMockCapRates();
+      if (!investors   || investors.length   === 0) investors   = getMockInvestors();
+
     } else {
       supplyData = getMockSupply();
       demandData = getMockDemand();
@@ -1223,52 +1095,44 @@ async function loadAll() {
       capData    = getMockCapRates();
       investors  = getMockInvestors();
     }
+
     renderAll();
     updateStats();
     updateTicker();
     document.getElementById('lastSync').textContent = 'SYNCED ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'});
     if (!connected) document.getElementById('lastSync').textContent += ' (DEMO)';
+
   } catch(e) {
     console.error('Load failed:', e);
     supplyData = getMockSupply(); demandData = getMockDemand();
     matchData = getMockMatches(); plaData = getMockPreleased();
     capData = getMockCapRates(); investors = getMockInvestors();
     renderAll(); updateStats(); updateTicker();
+    document.getElementById('supabaseStatus').textContent = '⬤ error — demo mode';
+    document.getElementById('supabaseStatus').style.color = 'var(--amber)';
   }
 }
 
 function renderAll() {
-  renderSupply();
-  renderDemand();
-  renderMatches();
-  renderPreleased();
-  renderCapRates();
-  renderSidebar();
+  renderSupply(); renderDemand(); renderMatches();
+  renderPreleased(); renderCapRates(); renderSidebar();
 }
 
 // ═══════════════════════════════════════════════════════════════════
 // STATS
 // ═══════════════════════════════════════════════════════════════════
 function updateStats() {
-  const critical = supplyData.filter(e => e.severity === 'critical').length;
-  const auctions = supplyData.filter(e => ['auction','sarfaesi'].includes(e.signal_category)).length;
+  const critical  = supplyData.filter(e => e.severity === 'critical').length;
+  const auctions  = supplyData.filter(e => ['auction','sarfaesi'].includes(e.signal_category)).length;
   const hotDemand = demandData.filter(d => ['HIGH','CRITICAL'].includes(d.urgency)).length;
-  const matches  = matchData.length;
-  const mmr      = supplyData.filter(e => e.is_mmr && (e.deal_score||0) >= 60).length;
+  const matches   = matchData.length;
+  const mmr       = supplyData.filter(e => e.is_mmr && (e.deal_score||0) >= 60).length;
   const preleased = plaData.length;
-
-  set('statCritical', critical);
-  set('statAuctions', auctions);
-  set('statDemand', hotDemand);
-  set('statMatches', matches);
-  set('statMMR', mmr);
-  set('statPreleased', preleased);
-  set('hdrSupply', supplyData.length);
-  set('hdrDemand', demandData.length);
-  set('hdrMatches', matches);
-  set('badgeSupply', supplyData.length);
-  set('badgeDemand', demandData.length);
-  set('badgeMatches', matches);
+  set('statCritical',critical); set('statAuctions',auctions);
+  set('statDemand',hotDemand);  set('statMatches',matches);
+  set('statMMR',mmr);           set('statPreleased',preleased);
+  set('hdrSupply',supplyData.length); set('hdrDemand',demandData.length); set('hdrMatches',matches);
+  set('badgeSupply',supplyData.length); set('badgeDemand',demandData.length); set('badgeMatches',matches);
 }
 
 function set(id, val) { const el = document.getElementById(id); if(el) el.textContent = val; }
@@ -1277,11 +1141,6 @@ function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 // ═══════════════════════════════════════════════════════════════════
 // SUPPLY FEED
 // ═══════════════════════════════════════════════════════════════════
-const CHAN_COLORS = {
-  bank_auction:'var(--amber)', sarfaesi:'var(--red)', drt:'var(--blue)',
-  arc_portfolio:'var(--purple)', regulatory:'var(--text-2)',
-  media:'var(--text-3)', legal_intelligence:'var(--blue)', other:'var(--text-3)'
-};
 const CHAN_LABELS = {
   bank_auction:'BANK AUCTION', sarfaesi:'SARFAESI', drt:'DRT PRE-AUCTION',
   arc_portfolio:'ARC PORTFOLIO', regulatory:'REGULATORY',
@@ -1304,7 +1163,6 @@ function renderSupply() {
     if (search && !e.company_name?.toLowerCase().includes(search) && !e.location?.toLowerCase().includes(search) && !(e.source||'').toLowerCase().includes(search)) return false;
     return true;
   });
-
   if (!data.length) { document.getElementById('supplyFeed').innerHTML = '<div class="empty">NO SIGNALS MATCH FILTERS</div>'; return; }
 
   let html = '';
@@ -1315,12 +1173,13 @@ function renderSupply() {
     const price = e.price_crore ? `₹${parseFloat(e.price_crore).toFixed(0)}Cr` : '';
     let meta = {};
     try { meta = typeof e.metadata === 'string' ? JSON.parse(e.metadata) : (e.metadata||{}); } catch(_){}
-    const bank = meta.bank ? ` · 🏦 ${meta.bank}` : '';
+    const bank  = meta.bank ? ` · 🏦 ${meta.bank}` : '';
     const adate = meta.auction_date ? ` · 📅 ${meta.auction_date}` : '';
     const dt = e.detected_at ? new Date(e.detected_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '';
+    const borderClass = ch==='sarfaesi'?'c-red':ch==='bank_auction'?'c-amber':ch==='drt'?'c-blue':ch==='arc_portfolio'?'c-purple':'';
+    const badgeClass  = ch==='sarfaesi'?'badge-red':ch==='bank_auction'?'badge-amber':ch==='arc_portfolio'?'badge-purple':ch==='drt'?'badge-blue':'badge-dim';
 
-    html += `<div class="ev-card c-${ch === 'sarfaesi' ? 'red' : ch === 'bank_auction' ? 'amber' : ch === 'drt' ? 'blue' : ch === 'arc_portfolio' ? 'purple' : 'dim'}"
-               style="cursor:pointer" onclick="openUrl('${esc(e.url||'')}');" title="${esc(e.headline||'')}">`
+    html += `<div class="ev-card ${borderClass}" onclick="openUrl('${esc(e.url||'')}');" title="${esc(e.headline||'')}">
       <div class="ev-score">
         <div class="ev-score-num" style="color:${sc}">${score}</div>
         <div class="ev-score-lbl" style="color:${sc}">SCORE</div>
@@ -1328,7 +1187,7 @@ function renderSupply() {
       <div class="ev-body">
         <div class="ev-head">
           <span class="ev-company">${esc(e.company_name||'Unknown')}</span>
-          <span class="badge badge-${ch === 'sarfaesi' ? 'red' : ch === 'bank_auction' ? 'amber' : ch === 'arc_portfolio' ? 'purple' : ch === 'drt' ? 'blue' : 'dim'}">${CHAN_LABELS[ch]||ch.toUpperCase()}</span>
+          <span class="badge ${badgeClass}">${CHAN_LABELS[ch]||ch.toUpperCase()}</span>
           ${e.is_mmr ? '<span class="badge badge-blue">MMR</span>' : ''}
           ${e.asset_class ? `<span class="badge badge-dim">${e.asset_class.toUpperCase()}</span>` : ''}
           <span class="badge badge-dim" style="color:${SEV_COLORS[e.severity||'medium']}">${(e.severity||'medium').toUpperCase()}</span>
@@ -1353,8 +1212,8 @@ function renderSupply() {
 // ═══════════════════════════════════════════════════════════════════
 const SIG_COLORS = {
   LEASE:'var(--green)', OFFICE:'var(--blue)', EXPAND:'var(--green)', RELOCATE:'var(--amber)',
-  FUNDING:'var(--purple)', HIRING:'var(--amber)', DATACENTER:'var(--blue)', WAREHOUSE:'var(--amber)',
-  NEW_ENTRANT:'var(--green)'
+  FUNDING:'var(--purple)', HIRING:'var(--amber)', DATACENTER:'var(--blue)',
+  WAREHOUSE:'var(--amber)', NEW_ENTRANT:'var(--green)'
 };
 const URG_COLORS = { CRITICAL:'var(--red)', HIGH:'var(--amber)', MEDIUM:'var(--blue)', LOW:'var(--text-3)' };
 
@@ -1368,7 +1227,6 @@ function renderDemand() {
     if (search && !d.company_name?.toLowerCase().includes(search) && !d.location?.toLowerCase().includes(search) && !(d.data_source||'').toLowerCase().includes(search)) return false;
     return true;
   });
-
   if (!data.length) { document.getElementById('demandFeed').innerHTML = '<div class="empty">NO DEMAND SIGNALS MATCH FILTERS</div>'; return; }
 
   let html = '';
@@ -1377,10 +1235,10 @@ function renderDemand() {
     const sc = SIG_COLORS[d.signal_type] || 'var(--green)';
     const uc = URG_COLORS[d.urgency] || 'var(--text-3)';
     const dt = d.detected_at ? new Date(d.detected_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '';
-    const sqft = d.sqft_mentioned ? ` · ${(d.sqft_mentioned/1000).toFixed(0)}k sqft` : '';
+    const sqft    = d.sqft_mentioned ? ` · ${(d.sqft_mentioned/1000).toFixed(0)}k sqft` : '';
     const funding = d.funding_amount_cr ? ` · ₹${parseFloat(d.funding_amount_cr).toFixed(0)}Cr raised` : '';
 
-    html += `<div class="ds-card" style="cursor:${d.source_url?'pointer':'default'}" onclick="${d.source_url?`openUrl('${esc(d.source_url||'')}');`:''}">
+    html += `<div class="ds-card">
       <div class="ds-head">
         <div>
           <span class="ds-company">${esc(d.company_name||'Unknown')}</span>
@@ -1396,9 +1254,9 @@ function renderDemand() {
       <div class="ds-why">${esc((d.why_cre||d.summary||'').slice(0,180))}</div>
       <div class="ds-action">${esc((d.suggested_action||'').slice(0,140))}</div>
       <div class="ds-meta">
-        ${sqft ? `<span>${sqft.trim()}</span>` : ''}
+        ${sqft    ? `<span>${sqft.trim()}</span>`    : ''}
         ${funding ? `<span style="color:var(--purple)">${funding.trim()}</span>` : ''}
-        ${dt ? `<span>${dt}</span>` : ''}
+        ${dt      ? `<span>${dt}</span>`             : ''}
       </div>
     </div>`;
   });
@@ -1424,14 +1282,13 @@ function renderMatches() {
     if (search && !m.supply_company?.toLowerCase().includes(search) && !m.demand_company?.toLowerCase().includes(search)) return false;
     return true;
   });
-
   if (!data.length) { document.getElementById('matchFeed').innerHTML = '<div class="empty">NO DEAL MATCHES — RUN ENRICHMENT PIPELINE TO GENERATE</div>'; return; }
 
   let html = '';
   data.forEach(m => {
-    const sc = m.match_score || 0;
+    const sc    = m.match_score || 0;
     const price = m.price_crore ? `₹${parseFloat(m.price_crore).toFixed(0)}Cr` : '';
-    const sqft = m.sqft_mentioned ? `${(m.sqft_mentioned/1000).toFixed(0)}k sqft needed` : '';
+    const sqft  = m.sqft_mentioned ? `${(m.sqft_mentioned/1000).toFixed(0)}k sqft needed` : '';
 
     html += `<div class="match-card">
       <div class="match-score-row">
@@ -1483,7 +1340,6 @@ function renderPreleased() {
     if (showThresh && !p.meets_investor_threshold) return false;
     return true;
   });
-
   if (!data.length) { document.getElementById('plaGrid').innerHTML = '<div class="empty" style="grid-column:1/-1">NO PRE-LEASED ASSETS MATCH FILTERS</div>'; return; }
 
   let html = '';
@@ -1502,7 +1358,7 @@ function renderPreleased() {
         </div>
         <div>
           <div class="pla-cap ${above ? 'on' : 'off'}">${cap.toFixed(1)}%</div>
-          <div style="font-family:var(--mono);font-size:7px;color:${above ? 'var(--green)' : 'var(--amber)'};text-align:right">CAP RATE</div>
+          <div style="font-family:var(--mono);font-size:7px;color:${above?'var(--green)':'var(--amber)'};text-align:right">CAP RATE</div>
           ${p.meets_investor_threshold ? '<div style="font-family:var(--mono);font-size:7px;color:var(--green);text-align:right;margin-top:2px">✓ TARGET</div>' : ''}
         </div>
       </div>
@@ -1511,7 +1367,7 @@ function renderPreleased() {
         ${p.tenant_category === 'blue_chip' ? ' <span style="color:var(--green);font-size:9px">[BLUE CHIP]</span>' : ''}
       </div>
       <div class="pla-row">
-        ${area ? `<span>📐 ${area}</span>` : ''}
+        ${area  ? `<span>📐 ${area}</span>` : ''}
         ${p.occupancy_pct ? `<span>Occ: ${parseFloat(p.occupancy_pct).toFixed(0)}%</span>` : ''}
         ${price ? `<span style="color:var(--amber)">${price}</span>` : ''}
         ${p.rent_per_sqft ? `<span>₹${p.rent_per_sqft}/sqft</span>` : ''}
@@ -1530,7 +1386,6 @@ const MMR_MARKETS = new Set(['BKC','Lower Parel','Worli','Andheri East','Powai',
 
 function renderCapRates() {
   const capF = getActiveFilter('capFilter');
-  // Dedupe: latest snapshot per market
   const seen = new Map();
   capData.forEach(c => {
     const key = c.micro_market + '|' + c.asset_class;
@@ -1551,13 +1406,13 @@ function renderCapRates() {
     html += `<div class="cap-card ${above ? 'above' : 'below'}">
       <div class="cap-market">${esc(c.micro_market)} ${isMMR ? '<span style="font-family:var(--mono);font-size:7px;color:var(--blue)">MMR</span>' : ''}</div>
       <div class="cap-rate">${cap.toFixed(2)}%</div>
-      <div style="font-family:var(--mono);font-size:8px;color:${above ? 'var(--green)':'var(--amber)'};margin-top:2px">
+      <div style="font-family:var(--mono);font-size:8px;color:${above?'var(--green)':'var(--amber)'};margin-top:2px">
         ${above ? '✓ ABOVE 8.5% TARGET' : `${(8.5-cap).toFixed(2)}% below target`}
       </div>
       <div class="cap-meta">
-        ${c.avg_rent_psf ? `Rent: ₹${c.avg_rent_psf}/sqft/mo\n` : ''}
-        ${c.avg_price_psf ? `Capital: ₹${(c.avg_price_psf/1000).toFixed(0)}k/sqft\n` : ''}
-        ${c.asset_class ? `${(c.asset_class||'').replace(/_/g,' ').toUpperCase()}` : ''}
+        ${c.avg_rent_psf   ? `Rent: ₹${c.avg_rent_psf}/sqft/mo\n`          : ''}
+        ${c.avg_price_psf  ? `Capital: ₹${(c.avg_price_psf/1000).toFixed(0)}k/sqft\n` : ''}
+        ${c.asset_class    ? `${(c.asset_class||'').replace(/_/g,' ').toUpperCase()}` : ''}
       </div>
     </div>`;
   });
@@ -1568,30 +1423,27 @@ function renderCapRates() {
 // SIDEBAR
 // ═══════════════════════════════════════════════════════════════════
 function renderSidebar() {
-  // Severity bars
   const sevMap = {critical:0, high:0, medium:0, low:0};
   supplyData.forEach(e => { const s = e.severity||'medium'; sevMap[s] = (sevMap[s]||0)+1; });
   const maxSev = Math.max(1, ...Object.values(sevMap));
   document.getElementById('sevBars').innerHTML = Object.entries(sevMap).map(([k,v]) =>
     `<div class="sev-row">
       <span class="sev-lbl">${k.toUpperCase()}</span>
-      <div class="sev-bar-wrap"><div class="sev-bar ${k === 'critical' ? 'crit' : k === 'high' ? 'high' : k === 'medium' ? 'med' : 'low'}" style="width:${(v/maxSev)*100}%"></div></div>
+      <div class="sev-bar-wrap"><div class="sev-bar ${k==='critical'?'crit':k==='high'?'high':k==='medium'?'med':'low'}" style="width:${(v/maxSev)*100}%"></div></div>
       <span class="sev-num">${v}</span>
     </div>`
   ).join('');
 
-  // Top sources
   const srcMap = {};
   supplyData.forEach(e => { const s = e.source||'Unknown'; srcMap[s] = (srcMap[s]||0)+1; });
   const topSrc = Object.entries(srcMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  document.getElementById('topSources').innerHTML = topSrc.map(([name, ct]) =>
-    `<div class="src-row" style="cursor:pointer" onclick="filterBySource('${esc(name)}')" title="Click to filter by ${esc(name)}">
+  document.getElementById('topSources').innerHTML = topSrc.map(([name,ct]) =>
+    `<div class="src-row" onclick="filterBySource('${esc(name)}')" title="Click to filter">
       <span class="src-name">${esc(name)}</span>
       <span class="src-ct">${ct}</span>
     </div>`
   ).join('');
 
-  // Investors
   document.getElementById('investorList').innerHTML = investors.map(inv =>
     `<div class="inv-card">
       <div class="inv-name">${esc(inv.investor_name)}</div>
@@ -1602,7 +1454,6 @@ function renderSidebar() {
     </div>`
   ).join('');
 
-  // Demand signal type bars
   const sigMap = {};
   demandData.forEach(d => { const s = d.signal_type||'OTHER'; sigMap[s] = (sigMap[s]||0)+1; });
   const maxSig = Math.max(1, ...Object.values(sigMap));
@@ -1614,21 +1465,19 @@ function renderSidebar() {
     </div>`
   ).join('');
 
-  // City list
   const cityMap = {};
   demandData.forEach(d => { const c = (d.location||'Unknown').split(',')[0].trim(); cityMap[c] = (cityMap[c]||0)+1; });
   document.getElementById('cityList').innerHTML = Object.entries(cityMap).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([c,n]) =>
-    `<div class="src-row" style="cursor:pointer" onclick="filterDemandByCity('${esc(c)}')" title="Filter demand by ${esc(c)}">
+    `<div class="src-row" onclick="filterDemandByCity('${esc(c)}')" title="Filter demand">
       <span class="src-name">${esc(c)}</span>
       <span class="src-ct">${n}</span>
     </div>`
   ).join('');
 
-  // Demand sources
   const dsMap = {};
   demandData.forEach(d => { const s = d.data_source||'RSS'; dsMap[s] = (dsMap[s]||0)+1; });
   document.getElementById('demandSources').innerHTML = Object.entries(dsMap).sort((a,b)=>b[1]-a[1]).map(([s,n]) =>
-    `<div class="src-row" style="cursor:pointer" onclick="filterDemandByDataSource('${esc(s)}')" title="Filter by ${esc(s)}">
+    `<div class="src-row" onclick="filterDemandByDataSource('${esc(s)}')" title="Filter by source">
       <span class="src-name">${esc(s)}</span>
       <span class="src-ct">${n}</span>
     </div>`
@@ -1693,21 +1542,19 @@ initFilterGroup('capFilter', 'b', renderCapRates);
 // SIDEBAR CLICK FILTERS
 // ═══════════════════════════════════════════════════════════════════
 function filterBySource(sourceName) {
-  // Switch to supply tab and filter search by source name
   switchTab('supply');
-  const searchEl = document.getElementById('supplySearch');
-  if (searchEl) { searchEl.value = sourceName; renderSupply(); }
+  const el = document.getElementById('supplySearch');
+  if (el) { el.value = sourceName; renderSupply(); }
 }
 function filterDemandByCity(city) {
   switchTab('demand');
-  const searchEl = document.getElementById('demandSearch');
-  if (searchEl) { searchEl.value = city; renderDemand(); }
+  const el = document.getElementById('demandSearch');
+  if (el) { el.value = city; renderDemand(); }
 }
 function filterDemandByDataSource(src) {
-  // Filter demand feed — highlight the matching data_source
   switchTab('demand');
-  const searchEl = document.getElementById('demandSearch');
-  if (searchEl) { searchEl.value = src; renderDemand(); }
+  const el = document.getElementById('demandSearch');
+  if (el) { el.value = src; renderDemand(); }
 }
 
 // ═══════════════════════════════════════════════════════════════════

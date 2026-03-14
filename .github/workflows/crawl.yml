@@ -1,0 +1,162 @@
+name: Nexus Asia Intel — Master Crawler
+
+on:
+  schedule:
+    # Supply crawlers every 30 minutes
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+    inputs:
+      group:
+        description: "Crawler group (all/supply/demand/bank_auction/legal/arc/media)"
+        required: false
+        default: "all"
+        type: choice
+        options:
+          - "all"
+          - "supply"
+          - "demand"
+          - "bank_auction"
+          - "legal"
+          - "arc"
+          - "media"
+      dry_run:
+        description: "Dry run (no DB writes)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+      enrich_only:
+        description: "Enrichment + deal matching only (no crawl)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+      digest:
+        description: "Send daily digest only"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+jobs:
+  crawl:
+    name: Run Nexus Asia Intel
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    env:
+      SUPABASE_URL:              ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY:         ${{ secrets.SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      FIRECRAWL_API_KEY:         ${{ secrets.FIRECRAWL_API_KEY }}
+      SLACK_WEBHOOK_URL:         ${{ secrets.SLACK_WEBHOOK_URL }}
+      ALERT_EMAIL_TO:            ${{ secrets.ALERT_EMAIL_TO }}
+      SMTP_HOST:                 ${{ secrets.SMTP_HOST }}
+      SMTP_PORT:                 ${{ secrets.SMTP_PORT }}
+      SMTP_USER:                 ${{ secrets.SMTP_USER }}
+      SMTP_PASSWORD:             ${{ secrets.SMTP_PASSWORD }}
+      TELEGRAM_BOT_TOKEN:        ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID:          ${{ secrets.TELEGRAM_CHAT_ID }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          python -m spacy download en_core_web_sm || echo "spaCy model download failed — regex NER fallback will be used"
+
+      - name: Validate secrets
+        run: |
+          if [ -z "$SUPABASE_URL" ]; then
+            echo "ERROR: SUPABASE_URL secret is not set"
+            exit 1
+          fi
+          echo "✓ Secrets validated"
+
+      # Scheduled run: full pipeline
+      - name: Run full pipeline (scheduled)
+        if: github.event_name == 'schedule'
+        run: python main.py --group all
+
+      # Manual trigger with parameters
+      - name: Run crawler (manual)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          ARGS=""
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            ARGS="$ARGS --dry-run"
+          fi
+          if [ "${{ github.event.inputs.enrich_only }}" = "true" ]; then
+            ARGS="$ARGS --enrich-only"
+          fi
+          if [ "${{ github.event.inputs.digest }}" = "true" ]; then
+            ARGS="$ARGS --digest"
+          fi
+          if [ -n "${{ github.event.inputs.group }}" ]; then
+            ARGS="$ARGS --group ${{ github.event.inputs.group }}"
+          fi
+          python main.py $ARGS
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crawler-failure-logs-${{ github.run_id }}
+          path: "*.log"
+          retention-days: 7
+
+  daily-digest:
+    name: Send Daily Digest
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # Runs at 8:00 AM IST (2:30 AM UTC) every day
+    if: github.event_name == 'schedule'
+    needs: crawl
+
+    env:
+      SUPABASE_URL:      ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      ALERT_EMAIL_TO:    ${{ secrets.ALERT_EMAIL_TO }}
+      SMTP_HOST:         ${{ secrets.SMTP_HOST }}
+      SMTP_PORT:         ${{ secrets.SMTP_PORT }}
+      SMTP_USER:         ${{ secrets.SMTP_USER }}
+      SMTP_PASSWORD:     ${{ secrets.SMTP_PASSWORD }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID:  ${{ secrets.TELEGRAM_CHAT_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - run: pip install -r requirements.txt
+      - name: Check if 8AM IST
+        id: check_time
+        run: |
+          HOUR_UTC=$(date -u +%H)
+          HOUR_IST=$(( (HOUR_UTC + 5) % 24 ))
+          if [ "$HOUR_IST" = "2" ] || [ "$HOUR_IST" = "3" ]; then
+            echo "send=true" >> $GITHUB_OUTPUT
+          else
+            echo "send=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Send digest
+        if: steps.check_time.outputs.send == 'true'
+        run: python main.py --digest

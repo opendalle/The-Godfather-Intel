@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NEXUS ASIA INTEL — The Godfather</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════
+   NEXUS ASIA INTEL — THE GODFATHER DASHBOARD
+   Aesthetic: Obsidian war room. Both sides of every deal —
+   who is selling (red), who is buying (green), where
+   they cross (gold). One screen. One edge.
+   ═══════════════════════════════════════════════════════ */
+
+:root {
+  --bg:          #080809;
+  --bg-2:        #0e0e10;
+  --bg-3:        #141418;
+  --bg-4:        #1a1a20;
+  --bg-5:        #20202a;
+  --border:      #1e1e28;
+  --border-2:    #2a2a38;
+  --border-3:    #363648;
+
+  --text-1:      #eeeef4;
+  --text-2:      #9090a8;
+  --text-3:      #555568;
+  --text-4:      #333344;
+
+  /* Supply — blood red */
+  --red:         #e8253a;
+  --red-dim:     rgba(232,37,58,0.12);
+  --red-glow:    0 0 24px rgba(232,37,58,0.25);
+
+  /* Demand — electric green */
+  --green:       #00d4a0;
+  --green-dim:   rgba(0,212,160,0.10);
+  --green-glow:  0 0 24px rgba(0,212,160,0.2);
+
+  /* Match — gold */
+  --gold:        #f5c518;
+  --gold-dim:    rgba(245,197,24,0.10);
+  --gold-glow:   0 0 24px rgba(245,197,24,0.2);
+
+  /* Supporting */
+  --blue:        #4d8fff;
+  --blue-dim:    rgba(77,143,255,0.10);
+  --purple:      #9b59b6;
+  --purple-dim:  rgba(155,89,182,0.10);
+  --amber:       #f5a623;
+  --amber-dim:   rgba(245,166,35,0.10);
+
+  --mono:        'Space Mono', monospace;
+  --syne:        'Syne', sans-serif;
+  --radius:      3px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: var(--syne);
+  font-size: 13px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scanline texture */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.06) 3px,rgba(0,0,0,0.06) 4px);
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* ── SCROLLBAR ──────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-2); }
+::-webkit-scrollbar-thumb { background: var(--border-3); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+
+/* ── TICKER ─────────────────────────────────────── */
+.ticker {
+  height: 26px;
+  background: #0a0a0a;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+.ticker-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  padding: 0 14px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border-2);
+  color: var(--red);
+  background: var(--bg-2);
+  z-index: 2;
+}
+.ticker-scroll {
+  display: flex;
+  animation: scroll-left 60s linear infinite;
+  white-space: nowrap;
+}
+.ticker-item {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.07em;
+  padding: 0 28px;
+  color: var(--text-3);
+}
+.ticker-item b { color: var(--text-2); }
+.ticker-item .red-b { color: var(--red); }
+.ticker-item .green-b { color: var(--green); }
+.ticker-item .gold-b { color: var(--gold); }
+@keyframes scroll-left {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ── HEADER ─────────────────────────────────────── */
+header {
+  padding: 18px 28px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  background: linear-gradient(180deg, #0a0a0c 0%, var(--bg) 100%);
+}
+.logo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.logo-eyebrow {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.4em;
+  color: var(--red);
+  text-transform: uppercase;
+}
+.logo-name {
+  font-family: var(--syne);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-1);
+  line-height: 1;
+}
+.logo-name em { color: var(--red); font-style: normal; }
+.logo-tag {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  color: var(--text-3);
+  margin-top: 3px;
+}
+.header-center {
+  display: flex;
+  gap: 1px;
+  align-items: stretch;
+  flex: 1;
+  max-width: 520px;
+}
+.mode-pill {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border: 1px solid var(--border-2);
+  gap: 3px;
+  cursor: default;
+}
+.mode-pill.supply { border-top: 2px solid var(--red); }
+.mode-pill.demand { border-top: 2px solid var(--green); }
+.mode-pill.match  { border-top: 2px solid var(--gold); }
+.mode-num {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+.supply .mode-num { color: var(--red); }
+.demand .mode-num { color: var(--green); }
+.match  .mode-num { color: var(--gold); }
+.mode-label {
+  font-family: var(--mono);
+  font-size: 7px;
+  letter-spacing: 0.18em;
+  color: var(--text-3);
+  text-transform: uppercase;
+}
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--green);
+  letter-spacing: 0.15em;
+}
+.pulse {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2.2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,212,160,0.4); }
+  50%      { opacity: 0.6; box-shadow: 0 0 0 5px rgba(0,212,160,0); }
+}
+.last-sync {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-3);
+  letter-spacing: 0.05em;
+}
+
+/* ── STAT ROW ───────────────────────────────────── */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  border-bottom: 1px solid var(--border);
+  background: var(--border);
+  gap: 1px;
+}
+.stat {
+  background: var(--bg-2);
+  padding: 14px 18px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.15s;
+}
+.stat:hover { background: var(--bg-3); }
+.stat::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  opacity: 0.8;
+}
+.stat.s-red::before    { background: var(--red); }
+.stat.s-green::before  { background: var(--green); }
+.stat.s-gold::before   { background: var(--gold); }
+.stat.s-blue::before   { background: var(--blue); }
+.stat.s-purple::before { background: var(--purple); }
+.stat.s-amber::before  { background: var(--amber); }
+.stat-lbl {
+  font-family: var(--mono);
+  font-size: 7px;
+  letter-spacing: 0.22em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.stat-val {
+  font-family: var(--mono);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--text-1);
+}
+.s-red   .stat-val { color: var(--red); }
+.s-green .stat-val { color: var(--green); }
+.s-gold  .stat-val { color: var(--gold); }
+.stat-sub {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--text-3);
+  margin-top: 3px;
+  letter-spacing: 0.05em;
+}
+
+/* ── NAV TABS ───────────────────────────────────── */
+.nav-bar {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-2);
+  overflow-x: auto;
+}
+.nav-tab {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 12px 22px;
+  color: var(--text-3);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.15s;
+  position: relative;
+  user-select: none;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  outline: none;
+}
+.nav-tab:hover { color: var(--text-2); background: var(--bg-3); }
+.nav-tab.active { color: var(--text-1); border-bottom-color: var(--red); }
+.nav-tab.active.t-green { border-bottom-color: var(--green); }
+.nav-tab.active.t-gold  { border-bottom-color: var(--gold); }
+.nav-tab.active.t-blue  { border-bottom-color: var(--blue); }
+.nav-tab.active.t-purple { border-bottom-color: var(--purple); }
+.nav-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 14px;
+  background: var(--red);
+  color: #fff;
+  font-size: 7px;
+  font-weight: 700;
+  padding: 0 3px;
+  margin-left: 6px;
+  border-radius: 2px;
+  vertical-align: middle;
+}
+.nav-badge.g { background: var(--green); color: #000; }
+.nav-badge.o { background: var(--gold); color: #000; }
+.nav-badge.b { background: var(--blue); }
+
+/* ── PANEL ──────────────────────────────────────── */
+.panel { display: none; }
+.panel.active { display: block; }
+.panel-inner {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  min-height: calc(100vh - 220px);
+}
+.panel-main { border-right: 1px solid var(--border); overflow: hidden; }
+.panel-side { overflow: hidden; }
+
+/* ── TOOLBAR ────────────────────────────────────── */
+.toolbar {
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.tb-label {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.tb-group { display: flex; gap: 3px; }
+.tb-btn {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid var(--border-2);
+  color: var(--text-3);
+  cursor: pointer;
+  transition: all 0.12s;
+  text-transform: uppercase;
+  outline: none;
+  white-space: nowrap;
+}
+.tb-btn:hover { border-color: var(--border-3); color: var(--text-2); }
+.tb-btn.on    { background: var(--red); border-color: var(--red); color: #fff; }
+.tb-btn.on.g  { background: var(--green); border-color: var(--green); color: #000; }
+.tb-btn.on.o  { background: var(--gold); border-color: var(--gold); color: #000; }
+.tb-btn.on.b  { background: var(--blue); border-color: var(--blue); color: #fff; }
+.tb-search {
+  margin-left: auto;
+  background: var(--bg-3);
+  border: 1px solid var(--border-2);
+  color: var(--text-1);
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 5px 12px;
+  width: 200px;
+  outline: none;
+  letter-spacing: 0.04em;
+  transition: border-color 0.15s;
+  border-radius: var(--radius);
+}
+.tb-search::placeholder { color: var(--text-3); }
+.tb-search:focus { border-color: var(--red); }
+.tb-search.g:focus { border-color: var(--green); }
+
+/* ── FEED ───────────────────────────────────────── */
+.feed { padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+
+/* Supply event card */
+.ev-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border-2);
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.ev-card:hover { background: var(--bg-3); }
+.ev-card.c-red    { border-left-color: var(--red); }
+.ev-card.c-amber  { border-left-color: var(--amber); }
+.ev-card.c-blue   { border-left-color: var(--blue); }
+.ev-card.c-green  { border-left-color: var(--green); }
+.ev-card.c-purple { border-left-color: var(--purple); }
+.ev-score {
+  min-width: 46px;
+  text-align: center;
+  padding: 5px 2px;
+  flex-shrink: 0;
+}
+.ev-score-num {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+.ev-score-lbl {
+  font-family: var(--mono);
+  font-size: 7px;
+  letter-spacing: 0.12em;
+  opacity: 0.5;
+  margin-top: 1px;
+}
+.ev-body { flex: 1; min-width: 0; }
+.ev-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-bottom: 3px;
+}
+.ev-company {
+  font-family: var(--syne);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+.badge {
+  font-family: var(--mono);
+  font-size: 7px;
+  letter-spacing: 0.1em;
+  padding: 2px 6px;
+  border-radius: 2px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.badge-red    { background: var(--red-dim);    color: var(--red);    border: 1px solid rgba(232,37,58,0.2); }
+.badge-green  { background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(0,212,160,0.2); }
+.badge-gold   { background: var(--gold-dim);   color: var(--gold);   border: 1px solid rgba(245,197,24,0.2); }
+.badge-blue   { background: var(--blue-dim);   color: var(--blue);   border: 1px solid rgba(77,143,255,0.2); }
+.badge-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(155,89,182,0.2); }
+.badge-amber  { background: var(--amber-dim);  color: var(--amber);  border: 1px solid rgba(245,166,35,0.2); }
+.badge-dim    { background: rgba(255,255,255,0.04); color: var(--text-3); border: 1px solid var(--border-2); }
+.ev-hl {
+  font-size: 11px;
+  color: var(--text-2);
+  line-height: 1.45;
+  margin-bottom: 5px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.ev-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.ev-meta span {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--text-3);
+  letter-spacing: 0.05em;
+}
+.ev-meta .price  { color: var(--green); }
+.ev-meta .loc    { color: var(--text-2); }
+.ev-meta .date   { }
+
+/* Demand signal card */
+.ds-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--green);
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.ds-card:hover { background: var(--bg-3); }
+.ds-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.ds-company {
+  font-family: var(--syne);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-1);
+}
+.ds-conf {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.ds-why {
+  font-size: 11px;
+  color: var(--text-2);
+  line-height: 1.45;
+  margin: 4px 0;
+}
+.ds-action {
+  font-size: 10px;
+  color: var(--green);
+  font-style: italic;
+  opacity: 0.85;
+}
+.ds-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 5px;
+}
+.ds-meta span {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--text-3);
+}
+
+/* Match card */
+.match-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--gold);
+  padding: 14px 14px;
+  cursor: pointer;
+  transition: background 0.12s;
+  margin-bottom: 6px;
+}
+.match-card:hover { background: var(--bg-3); }
+.match-score-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.match-score {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+}
+.match-score-lbl {
+  font-family: var(--mono);
+  font-size: 7px;
+  color: var(--text-3);
+  letter-spacing: 0.15em;
+}
+.match-reason { font-family: var(--mono); font-size: 9px; color: var(--gold); letter-spacing: 0.06em; }
+.match-sides {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.match-side {
+  background: var(--bg-3);
+  border: 1px solid var(--border-2);
+  padding: 8px 10px;
+  border-radius: var(--radius);
+}
+.match-side.sell { border-left: 2px solid var(--red); }
+.match-side.buy  { border-left: 2px solid var(--green); }
+.match-side-type {
+  font-family: var(--mono);
+  font-size: 7px;
+  letter-spacing: 0.18em;
+  margin-bottom: 3px;
+}
+.sell .match-side-type { color: var(--red); }
+.buy  .match-side-type { color: var(--green); }
+.match-side-name {
+  font-family: var(--syne);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-1);
+}
+.match-side-detail { font-family: var(--mono); font-size: 8px; color: var(--text-3); margin-top: 2px; }
+.match-arrow { font-size: 18px; color: var(--gold); text-align: center; }
+.match-action {
+  font-size: 11px;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid rgba(245,197,24,0.15);
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  line-height: 1.4;
+}
+
+/* Cap rate card */
+.cap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 6px;
+  padding: 12px;
+}
+.cap-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  padding: 12px 14px;
+  cursor: default;
+  transition: background 0.12s;
+}
+.cap-card:hover { background: var(--bg-3); }
+.cap-card.above { border-top: 2px solid var(--green); }
+.cap-card.below { border-top: 2px solid var(--amber); }
+.cap-market { font-family: var(--syne); font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.cap-rate {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+.cap-card.above .cap-rate { color: var(--green); }
+.cap-card.below .cap-rate { color: var(--amber); }
+.cap-meta { font-family: var(--mono); font-size: 8px; color: var(--text-3); margin-top: 5px; line-height: 1.8; }
+
+/* Pre-leased card */
+.pla-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 6px;
+  padding: 12px;
+}
+.pla-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.pla-card:hover { background: var(--bg-3); }
+.pla-card.target { border: 1px solid rgba(0,212,160,0.3); box-shadow: var(--green-glow); }
+.pla-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.pla-name { font-family: var(--syne); font-size: 13px; font-weight: 600; }
+.pla-cap { font-family: var(--mono); font-size: 18px; font-weight: 700; }
+.pla-cap.on  { color: var(--green); }
+.pla-cap.off { color: var(--amber); }
+.pla-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px; }
+.pla-row span { font-family: var(--mono); font-size: 8px; color: var(--text-3); }
+.pla-tenant { font-size: 11px; color: var(--text-2); margin-top: 6px; }
+
+/* Sidebar */
+.sidebar { padding: 0; }
+.side-section {
+  border-bottom: 1px solid var(--border);
+}
+.side-hd {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  padding: 10px 14px 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.side-hd::before { content: '▸'; color: var(--red); font-size: 8px; }
+.side-hd.g::before { color: var(--green); }
+.side-hd.o::before { color: var(--gold); }
+
+/* Severity bars */
+.sev-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+}
+.sev-lbl { font-family: var(--mono); font-size: 8px; color: var(--text-3); min-width: 48px; letter-spacing: 0.08em; }
+.sev-bar-wrap { flex: 1; height: 4px; background: var(--bg-4); border-radius: 2px; overflow: hidden; }
+.sev-bar { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+.sev-bar.crit  { background: var(--red); }
+.sev-bar.high  { background: var(--amber); }
+.sev-bar.med   { background: var(--blue); }
+.sev-bar.low   { background: var(--text-3); }
+.sev-num { font-family: var(--mono); font-size: 9px; color: var(--text-2); min-width: 24px; text-align: right; }
+
+/* Source rows */
+.src-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 14px;
+  cursor: default;
+}
+.src-row:hover { background: var(--bg-3); }
+.src-name { font-family: var(--mono); font-size: 9px; color: var(--text-2); }
+.src-ct   { font-family: var(--mono); font-size: 9px; color: var(--text-3); }
+
+/* Investor mandate */
+.inv-card {
+  margin: 6px 14px;
+  background: var(--bg-3);
+  border: 1px solid var(--border-2);
+  border-left: 2px solid var(--green);
+  padding: 8px 10px;
+}
+.inv-name { font-family: var(--syne); font-size: 11px; font-weight: 600; margin-bottom: 3px; }
+.inv-meta { font-family: var(--mono); font-size: 8px; color: var(--text-3); line-height: 1.7; }
+.inv-meta .cap { color: var(--green); }
+
+/* Empty / loading */
+.empty {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--text-3);
+  padding: 48px 24px;
+  text-align: center;
+}
+
+/* Config panel */
+.cfg-form { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.cfg-row { display: flex; flex-direction: column; gap: 4px; }
+.cfg-lbl { font-family: var(--mono); font-size: 8px; letter-spacing: 0.18em; color: var(--text-3); text-transform: uppercase; }
+.cfg-input {
+  background: var(--bg-3);
+  border: 1px solid var(--border-2);
+  color: var(--text-1);
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 7px 10px;
+  outline: none;
+  transition: border-color 0.15s;
+  border-radius: var(--radius);
+  width: 100%;
+}
+.cfg-input:focus { border-color: var(--red); }
+.cfg-input.g:focus { border-color: var(--green); }
+.cfg-btn {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  padding: 9px 16px;
+  background: var(--red);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  text-transform: uppercase;
+  border-radius: var(--radius);
+  width: 100%;
+}
+.cfg-btn:hover { opacity: 0.85; }
+.cfg-btn.g { background: var(--green); color: #000; }
+.cfg-status {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--green);
+  letter-spacing: 0.1em;
+  min-height: 16px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .panel-inner { grid-template-columns: 1fr; }
+  .panel-side   { display: none; }
+  .stat-row     { grid-template-columns: repeat(3, 1fr); }
+  .header-center { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-tag">NEXUS LIVE</div>
+  <div class="ticker-scroll" id="tickerScroll">
+    <!-- filled by JS -->
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-eyebrow">THE GODFATHER</div>
+    <div class="logo-name">NEXUS ASIA <em>INTEL</em></div>
+    <div class="logo-tag">SUPPLY · DEMAND · MATCH — ONE SCREEN</div>
+  </div>
+  <div class="header-center">
+    <div class="mode-pill supply">
+      <div class="mode-num" id="hdrSupply">—</div>
+      <div class="mode-label">Supply Signals</div>
+    </div>
+    <div class="mode-pill demand">
+      <div class="mode-num" id="hdrDemand">—</div>
+      <div class="mode-label">Demand Signals</div>
+    </div>
+    <div class="mode-pill match">
+      <div class="mode-num" id="hdrMatches">—</div>
+      <div class="mode-label">Deal Matches</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge"><div class="pulse"></div>LIVE INTEL</div>
+    <div class="last-sync" id="lastSync">syncing...</div>
+    <div class="last-sync" id="supabaseStatus" style="color:var(--text-3);">⬤ connecting</div>
+  </div>
+</header>
+
+<!-- STAT ROW -->
+<div class="stat-row">
+  <div class="stat s-red">
+    <div class="stat-lbl">Critical Distress</div>
+    <div class="stat-val" id="statCritical">—</div>
+    <div class="stat-sub">CIRP / Liquidation</div>
+  </div>
+  <div class="stat s-amber">
+    <div class="stat-lbl">Active Auctions</div>
+    <div class="stat-val" id="statAuctions">—</div>
+    <div class="stat-sub">SARFAESI · Bank</div>
+  </div>
+  <div class="stat s-green">
+    <div class="stat-lbl">Hot Demand</div>
+    <div class="stat-val" id="statDemand">—</div>
+    <div class="stat-sub">Urgency HIGH+</div>
+  </div>
+  <div class="stat s-gold">
+    <div class="stat-lbl">Deal Matches</div>
+    <div class="stat-val" id="statMatches">—</div>
+    <div class="stat-sub">Cross-matched</div>
+  </div>
+  <div class="stat s-blue">
+    <div class="stat-lbl">MMR Commercial</div>
+    <div class="stat-val" id="statMMR">—</div>
+    <div class="stat-sub">Score ≥ 60</div>
+  </div>
+  <div class="stat s-purple">
+    <div class="stat-lbl">Pre-Leased</div>
+    <div class="stat-val" id="statPreleased">—</div>
+    <div class="stat-sub">Investor-ready</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav-bar">
+  <button class="nav-tab active"       onclick="switchTab('supply')"    id="tabSupply">🔴 Supply Feed <span class="nav-badge" id="badgeSupply">0</span></button>
+  <button class="nav-tab t-green"      onclick="switchTab('demand')"    id="tabDemand">🟢 Demand Feed <span class="nav-badge g" id="badgeDemand">0</span></button>
+  <button class="nav-tab t-gold"       onclick="switchTab('matches')"   id="tabMatches">🤝 Deal Matches <span class="nav-badge o" id="badgeMatches">0</span></button>
+  <button class="nav-tab t-purple"     onclick="switchTab('preleased')" id="tabPreleased">🏢 Pre-Leased</button>
+  <button class="nav-tab t-blue"       onclick="switchTab('caprates')"  id="tabCaprates">📊 Cap Rates</button>
+  <button class="nav-tab"              onclick="switchTab('config')"    id="tabConfig">⚙ Config</button>
+</div>
+
+<!-- ═══════════════════════════════════
+     PANEL: SUPPLY FEED
+     ═══════════════════════════════════ -->
+<div class="panel active" id="panelSupply">
+  <div class="panel-inner">
+    <div class="panel-main">
+      <div class="toolbar">
+        <span class="tb-label">Channel</span>
+        <div class="tb-group" id="chanFilter">
+          <button class="tb-btn on" data-val="">All</button>
+          <button class="tb-btn" data-val="bank_auction">Bank Auction</button>
+          <button class="tb-btn" data-val="sarfaesi">SARFAESI</button>
+          <button class="tb-btn" data-val="drt">DRT</button>
+          <button class="tb-btn" data-val="arc_portfolio">ARC</button>
+          <button class="tb-btn" data-val="regulatory">Regulatory</button>
+          <button class="tb-btn" data-val="media">Media</button>
+        </div>
+        <span class="tb-label" style="margin-left:8px">Severity</span>
+        <div class="tb-group" id="sevFilter">
+          <button class="tb-btn on" data-val="">All</button>
+          <button class="tb-btn" data-val="critical">Critical</button>
+          <button class="tb-btn" data-val="high">High</button>
+          <button class="tb-btn" data-val="medium">Medium</button>
+        </div>
+        <input class="tb-search" id="supplySearch" placeholder="Search company, location..." oninput="renderSupply()">
+      </div>
+      <div class="feed" id="supplyFeed"><div class="empty">LOADING SUPPLY INTELLIGENCE...</div></div>
+    </div>
+    <div class="panel-side sidebar">
+      <div class="side-section">
+        <div class="side-hd">Severity Breakdown</div>
+        <div id="sevBars"></div>
+      </div>
+      <div class="side-section">
+        <div class="side-hd">Top Sources</div>
+        <div id="topSources"></div>
+      </div>
+      <div class="side-section">
+        <div class="side-hd g">Investor Mandates</div>
+        <div id="investorList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PANEL: DEMAND FEED
+     ═══════════════════════════════════ -->
+<div class="panel" id="panelDemand">
+  <div class="panel-inner">
+    <div class="panel-main">
+      <div class="toolbar">
+        <span class="tb-label">Signal</span>
+        <div class="tb-group" id="sigFilter">
+          <button class="tb-btn on g" data-val="">All</button>
+          <button class="tb-btn" data-val="LEASE">Lease</button>
+          <button class="tb-btn" data-val="OFFICE">Office</button>
+          <button class="tb-btn" data-val="EXPAND">Expand</button>
+          <button class="tb-btn" data-val="RELOCATE">Relocate</button>
+          <button class="tb-btn" data-val="FUNDING">Funding</button>
+          <button class="tb-btn" data-val="HIRING">Hiring</button>
+        </div>
+        <span class="tb-label" style="margin-left:8px">Urgency</span>
+        <div class="tb-group" id="urgFilter">
+          <button class="tb-btn on g" data-val="">All</button>
+          <button class="tb-btn" data-val="CRITICAL">Critical</button>
+          <button class="tb-btn" data-val="HIGH">High</button>
+          <button class="tb-btn" data-val="MEDIUM">Medium</button>
+        </div>
+        <input class="tb-search g" id="demandSearch" placeholder="Search company, location..." oninput="renderDemand()">
+      </div>
+      <div class="feed" id="demandFeed"><div class="empty">LOADING DEMAND INTELLIGENCE...</div></div>
+    </div>
+    <div class="panel-side sidebar">
+      <div class="side-section">
+        <div class="side-hd g">Signal Types</div>
+        <div id="sigTypeBars"></div>
+      </div>
+      <div class="side-section">
+        <div class="side-hd g">Top Cities</div>
+        <div id="cityList"></div>
+      </div>
+      <div class="side-section">
+        <div class="side-hd g">Data Sources</div>
+        <div id="demandSources"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PANEL: DEAL MATCHES
+     ═══════════════════════════════════ -->
+<div class="panel" id="panelMatches">
+  <div class="toolbar">
+    <span class="tb-label">Status</span>
+    <div class="tb-group" id="matchStatusFilter">
+      <button class="tb-btn on o" data-val="">All</button>
+      <button class="tb-btn" data-val="new">New</button>
+      <button class="tb-btn" data-val="reviewed">Reviewed</button>
+      <button class="tb-btn" data-val="pursuing">Pursuing</button>
+    </div>
+    <span class="tb-label" style="margin-left:8px">Min Score</span>
+    <div class="tb-group">
+      <button class="tb-btn" data-min="0"  onclick="setMatchMin(0,this)">Any</button>
+      <button class="tb-btn on o" data-min="50" onclick="setMatchMin(50,this)">50+</button>
+      <button class="tb-btn" data-min="70" onclick="setMatchMin(70,this)">70+</button>
+      <button class="tb-btn" data-min="85" onclick="setMatchMin(85,this)">85+</button>
+    </div>
+    <input class="tb-search" style="border-color:var(--gold)" id="matchSearch" placeholder="Search company..." oninput="renderMatches()">
+  </div>
+  <div class="feed" id="matchFeed"><div class="empty">LOADING DEAL MATCHES...</div></div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PANEL: PRE-LEASED
+     ═══════════════════════════════════ -->
+<div class="panel" id="panelPreleased">
+  <div class="toolbar">
+    <span class="tb-label">Market</span>
+    <div class="tb-group" id="plaMarketFilter">
+      <button class="tb-btn on b" data-val="">All MMR</button>
+      <button class="tb-btn" data-val="BKC">BKC</button>
+      <button class="tb-btn" data-val="Lower Parel">Lower Parel</button>
+      <button class="tb-btn" data-val="Andheri">Andheri</button>
+      <button class="tb-btn" data-val="Malad">Malad</button>
+      <button class="tb-btn" data-val="Powai">Powai</button>
+    </div>
+    <span class="tb-label" style="margin-left:8px">Threshold</span>
+    <div class="tb-group">
+      <button class="tb-btn" id="threshBtn" onclick="toggleThresh()">8.5%+ Only</button>
+    </div>
+  </div>
+  <div class="pla-grid" id="plaGrid"><div class="empty" style="grid-column:1/-1">LOADING PRE-LEASED ASSETS...</div></div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PANEL: CAP RATES
+     ═══════════════════════════════════ -->
+<div class="panel" id="panelCaprates">
+  <div class="toolbar">
+    <span class="tb-label">Filter</span>
+    <div class="tb-group" id="capFilter">
+      <button class="tb-btn on b" data-val="">All Markets</button>
+      <button class="tb-btn" data-val="mmr">MMR Only</button>
+      <button class="tb-btn" data-val="above">Above 8.5%</button>
+    </div>
+  </div>
+  <div class="cap-grid" id="capGrid"><div class="empty" style="grid-column:1/-1">LOADING CAP RATE MARKET DATA...</div></div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PANEL: CONFIG
+     ═══════════════════════════════════ -->
+<div class="panel" id="panelConfig">
+  <div style="padding:20px;max-width:500px">
+    <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.25em;color:var(--red);margin-bottom:16px;">⚙ CONFIGURATION</div>
+    <div class="cfg-form">
+      <div class="cfg-row">
+        <label class="cfg-lbl">Supabase URL</label>
+        <input class="cfg-input" id="cfgUrl" placeholder="https://xxxx.supabase.co" />
+      </div>
+      <div class="cfg-row">
+        <label class="cfg-lbl">Supabase Anon Key</label>
+        <input class="cfg-input" id="cfgKey" type="password" placeholder="eyJ..." />
+      </div>
+      <button class="cfg-btn" onclick="saveConfig()">CONNECT TO SUPABASE</button>
+      <div class="cfg-status" id="cfgStatus"></div>
+      <hr style="border-color:var(--border);margin:4px 0">
+      <div style="font-family:var(--mono);font-size:8px;color:var(--text-3);letter-spacing:0.12em;">
+        Credentials stored in localStorage. Never sent anywhere except your Supabase instance.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// CONFIG & SUPABASE
+// ═══════════════════════════════════════════════════════════════════
+let CFG = { url: '', key: '' };
+let supplyData   = [];
+let demandData   = [];
+let matchData    = [];
+let plaData      = [];
+let capData      = [];
+let investors    = [];
+let matchMinScore = 50;
+let showThresh   = false;
+
+function loadConfig() {
+  try {
+    const saved = localStorage.getItem('nxi_config');
+    if (saved) CFG = JSON.parse(saved);
+    if (CFG.url) document.getElementById('cfgUrl').value = CFG.url;
+    if (CFG.key) document.getElementById('cfgKey').value = CFG.key;
+  } catch(e) {}
+}
+function saveConfig() {
+  CFG.url = document.getElementById('cfgUrl').value.trim().replace(/\/$/,'');
+  CFG.key = document.getElementById('cfgKey').value.trim();
+  localStorage.setItem('nxi_config', JSON.stringify(CFG));
+  document.getElementById('cfgStatus').textContent = '✓ Saved — loading data...';
+  document.getElementById('supabaseStatus').style.color = 'var(--amber)';
+  document.getElementById('supabaseStatus').textContent = '⬤ connecting';
+  loadAll();
+}
+
+async function sbGet(table, params = {}) {
+  if (!CFG.url || !CFG.key) return [];
+  const qs = new URLSearchParams({
+    apikey: CFG.key,
+    ...params
+  });
+  const r = await fetch(`${CFG.url}/rest/v1/${table}?${qs}`, {
+    headers: { apikey: CFG.key, Authorization: `Bearer ${CFG.key}` }
+  });
+  if (!r.ok) return [];
+  return r.json();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MOCK DATA (when no Supabase connected)
+// ═══════════════════════════════════════════════════════════════════
+function getMockSupply() {
+  return [
+    { id:'1', company_name:'Unitech Corporate Parks Ltd', signal_category:'cirp', source:'IBBI_NCLT', headline:'NCLT admits CIRP application against Unitech Corporate Parks — resolution professional appointed', deal_score:88, severity:'critical', asset_class:'commercial', location:'Gurgaon', is_mmr:false, channel:'regulatory', price_crore:320, url:'#', detected_at: new Date(Date.now()-3600000).toISOString(), metadata:{} },
+    { id:'2', company_name:'Peninsula Land Ltd', signal_category:'sarfaesi', source:'PSU_Banks', headline:'SBI issues Section 13(4) notice — physical possession of commercial premises at BKC Mumbai to be taken', deal_score:92, severity:'critical', asset_class:'commercial', location:'BKC', is_mmr:true, channel:'sarfaesi', price_crore:145, url:'#', detected_at: new Date(Date.now()-7200000).toISOString(), metadata:{bank:'State Bank of India'} },
+    { id:'3', company_name:'Hubtown Ltd', signal_category:'auction', source:'IBAPI', headline:'E-auction notice: Grade A office floor, Andheri East — Reserve price ₹38Cr, auction date March 28', deal_score:79, severity:'high', asset_class:'commercial', location:'Andheri', is_mmr:true, channel:'bank_auction', price_crore:38, url:'#', detected_at: new Date(Date.now()-10800000).toISOString(), metadata:{bank:'Bank of Baroda', auction_date:'28 Mar 2026'} },
+    { id:'4', company_name:'Orbit Corporation', signal_category:'drt', source:'DRT_SARFAESI', headline:'DRT Mumbai: OA filed by consortium of lenders — commercial property Worli, recovery ₹89Cr sought', deal_score:74, severity:'high', asset_class:'commercial', location:'Worli', is_mmr:true, channel:'drt', price_crore:89, url:'#', detected_at: new Date(Date.now()-14400000).toISOString(), metadata:{} },
+    { id:'5', company_name:'Amtek Auto Ltd', signal_category:'liquidation', source:'IBBI_NCLT', headline:'NCLT orders liquidation of Amtek Auto — industrial assets including 2 lakh sqft factory premises to be sold', deal_score:65, severity:'critical', asset_class:'industrial', location:'Pune', is_mmr:false, channel:'regulatory', price_crore:210, url:'#', detected_at: new Date(Date.now()-18000000).toISOString(), metadata:{} },
+    { id:'6', company_name:'Edelweiss ARC Portfolio', signal_category:'arc_portfolio', source:'NARCL_ARC', headline:'Edelweiss ARC offloads 3 commercial office assets in Mumbai — Grade B+ Malad and Goregaon', deal_score:71, severity:'high', asset_class:'commercial', location:'Malad', is_mmr:true, channel:'arc_portfolio', price_crore:55, url:'#', detected_at: new Date(Date.now()-21600000).toISOString(), metadata:{arc:'Edelweiss ARC'} },
+    { id:'7', company_name:'HDFC Asset Mgmt', signal_category:'default', source:'Financial_Media', headline:'Multiple NPA accounts in Mumbai real estate sector: ET reports fresh SARFAESI notices filed by PSU banks', deal_score:55, severity:'medium', asset_class:'commercial', location:'Mumbai', is_mmr:true, channel:'media', price_crore:null, url:'#', detected_at: new Date(Date.now()-28800000).toISOString(), metadata:{} },
+    { id:'8', company_name:'Alok Industries Ltd', signal_category:'cirp', source:'IBBI_NCLT', headline:'Resolution plan for Alok Industries approved — ₹5000Cr commercial asset package to be monetised', deal_score:82, severity:'critical', asset_class:'industrial', location:'Mumbai', is_mmr:true, channel:'regulatory', price_crore:5000, url:'#', detected_at: new Date(Date.now()-32400000).toISOString(), metadata:{} },
+  ];
+}
+
+function getMockDemand() {
+  return [
+    { id:'d1', company_name:'Zepto', signal_type:'LEASE', confidence_score:88, urgency:'CRITICAL', location:'Mumbai', why_cre:'Signed lease for 45,000 sqft warehouse-office hybrid in Malad West — rapid expansion to 1000-member ops team', suggested_action:'Immediate: shortlist adjacent Grade A spaces for overflow within 90 days', data_source:'BSE_FILING', detected_at: new Date(Date.now()-1800000).toISOString() },
+    { id:'d2', company_name:'JPMorgan Chase India', signal_type:'EXPAND', confidence_score:85, urgency:'HIGH', location:'BKC', sqft_mentioned:120000, why_cre:'Series of BSE filings confirm 1.2L sqft expansion in BKC — GCC headcount doubling to 8000 by FY26', suggested_action:'Introduce pre-leased Grade A options at BKC or Worli with existing infrastructure', data_source:'BSE_FILING', detected_at: new Date(Date.now()-3600000).toISOString() },
+    { id:'d3', company_name:'Meesho', signal_type:'FUNDING', confidence_score:72, urgency:'HIGH', location:'Bengaluru', funding_amount_cr:620, why_cre:'Series F — ₹620Cr raised, aggressive headcount plan for 2026, Bengaluru ORR primary market', suggested_action:'Send CRE intro deck + ORR Grade A availability — Series F timing ideal for 18-month office planning', data_source:'RSS_NEWS', detected_at: new Date(Date.now()-7200000).toISOString() },
+    { id:'d4', company_name:'Accenture India', signal_type:'HIRING', confidence_score:68, urgency:'HIGH', location:'Bengaluru', sqft_mentioned:null, why_cre:'LinkedIn surge: 250+ open roles in Bengaluru — Whitefield and Electronic City focus, signals facility expansion within 12 months', suggested_action:'Route to GCC/IT park team — connect with Whitefield Grade A landlords', data_source:'LINKEDIN_JOBS', detected_at: new Date(Date.now()-10800000).toISOString() },
+    { id:'d5', company_name:'Zerodha Financial Services', signal_type:'OFFICE', confidence_score:81, urgency:'HIGH', location:'Bengaluru', sqft_mentioned:35000, why_cre:'New registered office setup — MCA filing confirms 35,000 sqft new tech campus in HSR Layout', suggested_action:'Confirm if they need additional capacity — high-confidence, active requirement', data_source:'MCA_INCORPORATION', detected_at: new Date(Date.now()-14400000).toISOString() },
+    { id:'d6', company_name:'PayZapp (HDFC Bank subsidiary)', signal_type:'RELOCATE', confidence_score:74, urgency:'MEDIUM', location:'Mumbai', why_cre:'Subsidiary separating from parent bank operations — needs independent registered and operational office in MMR', suggested_action:'Identify Powai or Goregaon Grade B+ options — 10,000–20,000 sqft range', data_source:'BSE_FILING', detected_at: new Date(Date.now()-18000000).toISOString() },
+    { id:'d7', company_name:'BlackRock India GCC', signal_type:'NEW_ENTRANT', confidence_score:79, urgency:'HIGH', location:'Mumbai', why_cre:'New subsidiary incorporated in Maharashtra — global fund manager setting up India GCC, first office requirement', suggested_action:'Priority outreach — first office for global firm, BKC or Lower Parel preferred by financial institutions', data_source:'MCA_INCORPORATION', detected_at: new Date(Date.now()-21600000).toISOString() },
+  ];
+}
+
+function getMockMatches() {
+  return [
+    { match_id:'m1', match_score:87, match_reason:'MMR location overlap, commercial asset class, HIGH urgency demand', status:'new', broker_action:'Connect Peninsula Land BKC asset with JPMorgan GCC expansion — ₹145Cr distressed Grade A vs 1.2L sqft demand', supply_company:'Peninsula Land Ltd', asset_class:'commercial', supply_location:'BKC', price_crore:145, deal_score:92, channel:'sarfaesi', supply_headline:'SBI Section 13(4) notice — BKC commercial premises', demand_company:'JPMorgan Chase India', signal_type:'EXPAND', urgency:'HIGH', confidence_score:85, demand_location:'BKC', sqft_mentioned:120000, why_cre:'GCC headcount doubling to 8000 by FY26', suggested_action:'Introduce pre-leased Grade A options at BKC', matched_at: new Date().toISOString() },
+    { match_id:'m2', match_score:74, match_reason:'Mumbai location, commercial + LEASE demand, motivated seller', status:'new', broker_action:'Hubtown Andheri auction vs Zepto ops expansion — floor-level distressed unit vs immediate office+warehouse need', supply_company:'Hubtown Ltd', asset_class:'commercial', supply_location:'Andheri', price_crore:38, deal_score:79, channel:'bank_auction', supply_headline:'E-auction: Grade A office, Andheri East — ₹38Cr reserve', demand_company:'Zepto', signal_type:'LEASE', urgency:'CRITICAL', confidence_score:88, demand_location:'Mumbai', sqft_mentioned:45000, why_cre:'Rapid expansion, 1000-member ops team', suggested_action:'Immediate shortlist of adjacent Grade A spaces', matched_at: new Date(Date.now()-3600000).toISOString() },
+    { match_id:'m3', match_score:68, match_reason:'MMR overlap, ARC motivated seller, funding-stage company', status:'reviewed', broker_action:'Edelweiss ARC Malad units vs PayZapp relocation — distressed Grade B+ vs subsidiary separation requirement', supply_company:'Edelweiss ARC Portfolio', asset_class:'commercial', supply_location:'Malad', price_crore:55, deal_score:71, channel:'arc_portfolio', supply_headline:'Edelweiss ARC: 3 commercial office assets, Malad + Goregaon', demand_company:'PayZapp (HDFC Bank subsidiary)', signal_type:'RELOCATE', urgency:'MEDIUM', confidence_score:74, demand_location:'Mumbai', sqft_mentioned:null, why_cre:'Independent office needed post-separation', suggested_action:'Powai or Goregaon Grade B+ 10-20k sqft', matched_at: new Date(Date.now()-7200000).toISOString() },
+  ];
+}
+
+function getMockCapRates() {
+  return [
+    {micro_market:'BKC',           asset_class:'grade_a_office', cap_rate_pct:7.26, avg_rent_psf:310, avg_price_psf:47000},
+    {micro_market:'Lower Parel',   asset_class:'grade_a_office', cap_rate_pct:7.81, avg_rent_psf:255, avg_price_psf:36000},
+    {micro_market:'Worli',         asset_class:'grade_a_office', cap_rate_pct:7.45, avg_rent_psf:240, avg_price_psf:35500},
+    {micro_market:'Andheri East',  asset_class:'grade_a_office', cap_rate_pct:7.92, avg_rent_psf:145, avg_price_psf:20200},
+    {micro_market:'Powai',         asset_class:'grade_a_office', cap_rate_pct:7.55, avg_rent_psf:125, avg_price_psf:18200},
+    {micro_market:'Malad',         asset_class:'grade_a_office', cap_rate_pct:7.71, avg_rent_psf:112, avg_price_psf:16000},
+    {micro_market:'Goregaon',      asset_class:'grade_a_office', cap_rate_pct:7.83, avg_rent_psf:115, avg_price_psf:16200},
+    {micro_market:'Vikhroli',      asset_class:'grade_b_office', cap_rate_pct:8.31, avg_rent_psf:98,  avg_price_psf:12900},
+    {micro_market:'Thane',         asset_class:'grade_a_office', cap_rate_pct:8.52, avg_rent_psf:82,  avg_price_psf:10600},
+    {micro_market:'Navi Mumbai',   asset_class:'grade_a_office', cap_rate_pct:8.67, avg_rent_psf:76,  avg_price_psf:9650},
+    {micro_market:'Airoli',        asset_class:'grade_b_office', cap_rate_pct:9.12, avg_rent_psf:70,  avg_price_psf:8450},
+    {micro_market:'Belapur',       asset_class:'grade_b_office', cap_rate_pct:9.04, avg_rent_psf:65,  avg_price_psf:7900},
+    {micro_market:'Kharghar',      asset_class:'grade_b_office', cap_rate_pct:9.45, avg_rent_psf:60,  avg_price_psf:7000},
+    {micro_market:'Pune Hinjewadi',asset_class:'grade_a_office', cap_rate_pct:8.42, avg_rent_psf:82,  avg_price_psf:10700},
+    {micro_market:'Hyderabad HiTec',asset_class:'grade_a_office',cap_rate_pct:8.15, avg_rent_psf:88,  avg_price_psf:11900},
+    {micro_market:'Bengaluru ORR', asset_class:'grade_a_office', cap_rate_pct:8.20, avg_rent_psf:92,  avg_price_psf:12320},
+    {micro_market:'Bengaluru CBD', asset_class:'grade_a_office', cap_rate_pct:7.61, avg_rent_psf:115, avg_price_psf:16600},
+    {micro_market:'Pune CBD',      asset_class:'grade_a_office', cap_rate_pct:7.95, avg_rent_psf:105, avg_price_psf:14550},
+  ];
+}
+
+function getMockPreleased() {
+  return [
+    {id:'p1', name:'Lotus Corporate Park', micro_market:'Goregaon', city:'Mumbai', asset_class:'grade_a_office', total_area_sqft:210000, occupancy_pct:92, tenant_name:'Cognizant Technology Solutions', tenant_category:'blue_chip', cap_rate_pct:7.83, asking_price_crore:340, meets_investor_threshold:false, urgency_level:'motivated', rent_per_sqft:115, lease_expiry_date:'2028-03-31'},
+    {id:'p2', name:'Mindspace IT Park B3', micro_market:'Airoli', city:'Mumbai', asset_class:'it_park', total_area_sqft:180000, occupancy_pct:100, tenant_name:'TCS + Accenture (strata)', tenant_category:'blue_chip', cap_rate_pct:9.12, asking_price_crore:152, meets_investor_threshold:true, urgency_level:'distressed', rent_per_sqft:70, lease_expiry_date:'2027-09-30'},
+    {id:'p3', name:'Reliable Tech Park', micro_market:'Thane', city:'Mumbai', asset_class:'grade_a_office', total_area_sqft:95000, occupancy_pct:100, tenant_name:'HDFC Life Insurance', tenant_category:'blue_chip', cap_rate_pct:8.52, asking_price_crore:101, meets_investor_threshold:true, urgency_level:'motivated', rent_per_sqft:82, lease_expiry_date:'2027-06-30'},
+    {id:'p4', name:'Nesco IT Park Block 4', micro_market:'Goregaon', city:'Mumbai', asset_class:'it_park', total_area_sqft:145000, occupancy_pct:95, tenant_name:'Wipro + HCL (multi-tenant)', tenant_category:'blue_chip', cap_rate_pct:7.83, asking_price_crore:235, meets_investor_threshold:false, urgency_level:'normal', rent_per_sqft:115, lease_expiry_date:'2029-12-31'},
+    {id:'p5', name:'Manyata Tech Park SEZ', micro_market:'Bengaluru', city:'Bengaluru', asset_class:'it_park', total_area_sqft:320000, occupancy_pct:98, tenant_name:'IBM India + Flipkart', tenant_category:'blue_chip', cap_rate_pct:8.20, asking_price_crore:510, meets_investor_threshold:false, urgency_level:'normal', rent_per_sqft:92, lease_expiry_date:'2030-06-30'},
+    {id:'p6', name:'Vashi Infotech Park', micro_market:'Navi Mumbai', city:'Mumbai', asset_class:'grade_b_office', total_area_sqft:72000, occupancy_pct:100, tenant_name:'ICICI Lombard (GI)', tenant_category:'institutional', cap_rate_pct:8.67, asking_price_crore:69, meets_investor_threshold:true, urgency_level:'motivated', rent_per_sqft:76, lease_expiry_date:'2026-09-30'},
+  ];
+}
+
+function getMockInvestors() {
+  return [
+    {investor_name:'London Investor Group', min_deal_size_cr:50, max_deal_size_cr:500, min_cap_rate_pct:8.5, preferred_cities:['Mumbai','Pune']},
+    {investor_name:'Blackstone India RE', min_deal_size_cr:500, max_deal_size_cr:5000, min_cap_rate_pct:7.0, preferred_cities:['Mumbai','Bengaluru']},
+    {investor_name:'Kotak Realty Fund', min_deal_size_cr:50, max_deal_size_cr:300, min_cap_rate_pct:8.0, preferred_cities:['Mumbai','Pune']},
+    {investor_name:'GIC Singapore', min_deal_size_cr:200, max_deal_size_cr:2000, min_cap_rate_pct:7.5, preferred_cities:['Mumbai','Bengaluru']},
+  ];
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DATA LOADING
+// ═══════════════════════════════════════════════════════════════════
+async function loadAll() {
+  const connected = CFG.url && CFG.key;
+  document.getElementById('supabaseStatus').textContent = connected ? '⬤ live' : '⬤ demo mode';
+  document.getElementById('supabaseStatus').style.color = connected ? 'var(--green)' : 'var(--amber)';
+
+  try {
+    if (connected) {
+      const now = new Date();
+      const cutoff14 = new Date(now - 14*24*3600000).toISOString();
+      const cutoff7  = new Date(now - 7*24*3600000).toISOString();
+      [supplyData, demandData, matchData, plaData, capData, investors] = await Promise.all([
+        sbGet('distress_events', { select:'id,company_name,signal_category,source,url,headline,deal_score,severity,asset_class,location,is_mmr,channel,price_crore,detected_at,metadata', 'is_duplicate':'eq.false', order:'deal_score.desc', limit:'300' }),
+        sbGet('demand_signals',  { select:'id,company_name,signal_type,confidence_score,urgency,location,sqft_mentioned,funding_amount_cr,why_cre,suggested_action,summary,data_source,detected_at', 'is_duplicate':'eq.false', order:'confidence_score.desc', limit:'200' }),
+        sbGet('v_deal_matches_full', { order:'match_score.desc', limit:'100' }),
+        sbGet('pre_leased_assets', { select:'id,name,micro_market,city,asset_class,total_area_sqft,occupancy_pct,tenant_name,tenant_category,cap_rate_pct,asking_price_crore,meets_investor_threshold,urgency_level,rent_per_sqft,lease_expiry_date', order:'cap_rate_pct.desc', limit:'100' }),
+        sbGet('cap_rate_snapshots', { order:'snapshot_date.desc,micro_market.asc', limit:'200' }),
+        sbGet('investor_mandates', { select:'investor_name,min_deal_size_cr,max_deal_size_cr,min_cap_rate_pct,preferred_cities', 'is_active':'eq.true', limit:'20' }),
+      ]);
+    } else {
+      supplyData = getMockSupply();
+      demandData = getMockDemand();
+      matchData  = getMockMatches();
+      plaData    = getMockPreleased();
+      capData    = getMockCapRates();
+      investors  = getMockInvestors();
+    }
+    renderAll();
+    updateStats();
+    updateTicker();
+    document.getElementById('lastSync').textContent = 'SYNCED ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'});
+    if (!connected) document.getElementById('lastSync').textContent += ' (DEMO)';
+  } catch(e) {
+    console.error('Load failed:', e);
+    supplyData = getMockSupply(); demandData = getMockDemand();
+    matchData = getMockMatches(); plaData = getMockPreleased();
+    capData = getMockCapRates(); investors = getMockInvestors();
+    renderAll(); updateStats(); updateTicker();
+  }
+}
+
+function renderAll() {
+  renderSupply();
+  renderDemand();
+  renderMatches();
+  renderPreleased();
+  renderCapRates();
+  renderSidebar();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════════════════════════════
+function updateStats() {
+  const critical = supplyData.filter(e => e.severity === 'critical').length;
+  const auctions = supplyData.filter(e => ['auction','sarfaesi'].includes(e.signal_category)).length;
+  const hotDemand = demandData.filter(d => ['HIGH','CRITICAL'].includes(d.urgency)).length;
+  const matches  = matchData.length;
+  const mmr      = supplyData.filter(e => e.is_mmr && (e.deal_score||0) >= 60).length;
+  const preleased = plaData.length;
+
+  set('statCritical', critical);
+  set('statAuctions', auctions);
+  set('statDemand', hotDemand);
+  set('statMatches', matches);
+  set('statMMR', mmr);
+  set('statPreleased', preleased);
+  set('hdrSupply', supplyData.length);
+  set('hdrDemand', demandData.length);
+  set('hdrMatches', matches);
+  set('badgeSupply', supplyData.length);
+  set('badgeDemand', demandData.length);
+  set('badgeMatches', matches);
+}
+
+function set(id, val) { const el = document.getElementById(id); if(el) el.textContent = val; }
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ═══════════════════════════════════════════════════════════════════
+// SUPPLY FEED
+// ═══════════════════════════════════════════════════════════════════
+const CHAN_COLORS = {
+  bank_auction:'var(--amber)', sarfaesi:'var(--red)', drt:'var(--blue)',
+  arc_portfolio:'var(--purple)', regulatory:'var(--text-2)',
+  media:'var(--text-3)', legal_intelligence:'var(--blue)', other:'var(--text-3)'
+};
+const CHAN_LABELS = {
+  bank_auction:'BANK AUCTION', sarfaesi:'SARFAESI', drt:'DRT PRE-AUCTION',
+  arc_portfolio:'ARC PORTFOLIO', regulatory:'REGULATORY',
+  media:'MEDIA', legal_intelligence:'LEGAL INTEL', other:'OTHER'
+};
+const SEV_COLORS = { critical:'var(--red)', high:'var(--amber)', medium:'var(--blue)', low:'var(--text-3)' };
+
+function getActiveFilter(groupId) {
+  const el = document.querySelector(`#${groupId} .tb-btn.on`);
+  return el ? el.dataset.val : '';
+}
+
+function renderSupply() {
+  const chanF  = getActiveFilter('chanFilter');
+  const sevF   = getActiveFilter('sevFilter');
+  const search = (document.getElementById('supplySearch')?.value||'').toLowerCase();
+  let data = supplyData.filter(e => {
+    if (chanF && e.channel !== chanF) return false;
+    if (sevF  && e.severity !== sevF) return false;
+    if (search && !e.company_name?.toLowerCase().includes(search) && !e.location?.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  if (!data.length) { document.getElementById('supplyFeed').innerHTML = '<div class="empty">NO SIGNALS MATCH FILTERS</div>'; return; }
+
+  let html = '';
+  data.forEach(e => {
+    const score = e.deal_score || 0;
+    const sc = score >= 75 ? 'var(--red)' : score >= 55 ? 'var(--amber)' : 'var(--text-3)';
+    const ch  = e.channel || 'other';
+    const price = e.price_crore ? `₹${parseFloat(e.price_crore).toFixed(0)}Cr` : '';
+    let meta = {};
+    try { meta = typeof e.metadata === 'string' ? JSON.parse(e.metadata) : (e.metadata||{}); } catch(_){}
+    const bank = meta.bank ? ` · 🏦 ${meta.bank}` : '';
+    const adate = meta.auction_date ? ` · 📅 ${meta.auction_date}` : '';
+    const dt = e.detected_at ? new Date(e.detected_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '';
+
+    html += `<div class="ev-card c-${ch === 'sarfaesi' ? 'red' : ch === 'bank_auction' ? 'amber' : ch === 'drt' ? 'blue' : ch === 'arc_portfolio' ? 'purple' : 'dim'}"
+               onclick="window.open('${esc(e.url||'#')}','_blank')" title="${esc(e.headline||'')}">
+      <div class="ev-score">
+        <div class="ev-score-num" style="color:${sc}">${score}</div>
+        <div class="ev-score-lbl" style="color:${sc}">SCORE</div>
+      </div>
+      <div class="ev-body">
+        <div class="ev-head">
+          <span class="ev-company">${esc(e.company_name||'Unknown')}</span>
+          <span class="badge badge-${ch === 'sarfaesi' ? 'red' : ch === 'bank_auction' ? 'amber' : ch === 'arc_portfolio' ? 'purple' : ch === 'drt' ? 'blue' : 'dim'}">${CHAN_LABELS[ch]||ch.toUpperCase()}</span>
+          ${e.is_mmr ? '<span class="badge badge-blue">MMR</span>' : ''}
+          ${e.asset_class ? `<span class="badge badge-dim">${e.asset_class.toUpperCase()}</span>` : ''}
+          <span class="badge badge-dim" style="color:${SEV_COLORS[e.severity||'medium']}">${(e.severity||'medium').toUpperCase()}</span>
+        </div>
+        <div class="ev-hl">${esc((e.headline||'').slice(0,200))}</div>
+        <div class="ev-meta">
+          ${e.location ? `<span class="loc">📍 ${esc(e.location)}</span>` : ''}
+          ${price ? `<span class="price">${price}</span>` : ''}
+          <span>${e.source||''}</span>
+          ${dt ? `<span class="date">${dt}</span>` : ''}
+          ${bank ? `<span>${bank}</span>` : ''}
+          ${adate ? `<span style="color:var(--amber)">${adate}</span>` : ''}
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('supplyFeed').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DEMAND FEED
+// ═══════════════════════════════════════════════════════════════════
+const SIG_COLORS = {
+  LEASE:'var(--green)', OFFICE:'var(--blue)', EXPAND:'var(--green)', RELOCATE:'var(--amber)',
+  FUNDING:'var(--purple)', HIRING:'var(--amber)', DATACENTER:'var(--blue)', WAREHOUSE:'var(--amber)',
+  NEW_ENTRANT:'var(--green)'
+};
+const URG_COLORS = { CRITICAL:'var(--red)', HIGH:'var(--amber)', MEDIUM:'var(--blue)', LOW:'var(--text-3)' };
+
+function renderDemand() {
+  const sigF   = getActiveFilter('sigFilter');
+  const urgF   = getActiveFilter('urgFilter');
+  const search = (document.getElementById('demandSearch')?.value||'').toLowerCase();
+  let data = demandData.filter(d => {
+    if (sigF && d.signal_type !== sigF) return false;
+    if (urgF && d.urgency !== urgF)     return false;
+    if (search && !d.company_name?.toLowerCase().includes(search) && !d.location?.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  if (!data.length) { document.getElementById('demandFeed').innerHTML = '<div class="empty">NO DEMAND SIGNALS MATCH FILTERS</div>'; return; }
+
+  let html = '';
+  data.forEach(d => {
+    const conf = d.confidence_score || 0;
+    const sc = SIG_COLORS[d.signal_type] || 'var(--green)';
+    const uc = URG_COLORS[d.urgency] || 'var(--text-3)';
+    const dt = d.detected_at ? new Date(d.detected_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '';
+    const sqft = d.sqft_mentioned ? ` · ${(d.sqft_mentioned/1000).toFixed(0)}k sqft` : '';
+    const funding = d.funding_amount_cr ? ` · ₹${parseFloat(d.funding_amount_cr).toFixed(0)}Cr raised` : '';
+
+    html += `<div class="ds-card">
+      <div class="ds-head">
+        <div>
+          <span class="ds-company">${esc(d.company_name||'Unknown')}</span>
+          <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap">
+            <span class="badge" style="background:${sc}22;color:${sc};border:1px solid ${sc}33">${d.signal_type||'SIGNAL'}</span>
+            <span class="badge" style="background:${uc}22;color:${uc};border:1px solid ${uc}33">${d.urgency||'MEDIUM'}</span>
+            ${d.location ? `<span class="badge badge-dim">📍 ${esc(d.location)}</span>` : ''}
+            ${d.data_source ? `<span class="badge badge-dim">${esc(d.data_source)}</span>` : ''}
+          </div>
+        </div>
+        <div class="ds-conf" style="color:${sc}">${Math.round(conf)}%</div>
+      </div>
+      <div class="ds-why">${esc((d.why_cre||d.summary||'').slice(0,180))}</div>
+      <div class="ds-action">${esc((d.suggested_action||'').slice(0,140))}</div>
+      <div class="ds-meta">
+        ${sqft ? `<span>${sqft.trim()}</span>` : ''}
+        ${funding ? `<span style="color:var(--purple)">${funding.trim()}</span>` : ''}
+        ${dt ? `<span>${dt}</span>` : ''}
+      </div>
+    </div>`;
+  });
+  document.getElementById('demandFeed').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DEAL MATCHES
+// ═══════════════════════════════════════════════════════════════════
+function setMatchMin(val, btn) {
+  matchMinScore = val;
+  document.querySelectorAll('[data-min]').forEach(b => b.classList.remove('on','o'));
+  btn.classList.add('on','o');
+  renderMatches();
+}
+
+function renderMatches() {
+  const statF  = getActiveFilter('matchStatusFilter');
+  const search = (document.getElementById('matchSearch')?.value||'').toLowerCase();
+  let data = matchData.filter(m => {
+    if ((m.match_score||0) < matchMinScore) return false;
+    if (statF && m.status !== statF) return false;
+    if (search && !m.supply_company?.toLowerCase().includes(search) && !m.demand_company?.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  if (!data.length) { document.getElementById('matchFeed').innerHTML = '<div class="empty">NO DEAL MATCHES — RUN ENRICHMENT PIPELINE TO GENERATE</div>'; return; }
+
+  let html = '';
+  data.forEach(m => {
+    const sc = m.match_score || 0;
+    const price = m.price_crore ? `₹${parseFloat(m.price_crore).toFixed(0)}Cr` : '';
+    const sqft = m.sqft_mentioned ? `${(m.sqft_mentioned/1000).toFixed(0)}k sqft needed` : '';
+
+    html += `<div class="match-card">
+      <div class="match-score-row">
+        <div>
+          <div class="match-score">${sc}</div>
+          <div class="match-score-lbl">MATCH SCORE</div>
+        </div>
+        <div style="flex:1;padding-left:10px">
+          <div class="match-reason">↯ ${esc(m.match_reason||'')}</div>
+          ${m.status ? `<span class="badge badge-dim" style="margin-top:5px;display:inline-block">${(m.status||'').toUpperCase()}</span>` : ''}
+        </div>
+      </div>
+      <div class="match-sides">
+        <div class="match-side sell">
+          <div class="match-side-type">🔴 SUPPLY</div>
+          <div class="match-side-name">${esc(m.supply_company||'Unknown')}</div>
+          <div class="match-side-detail">${esc(m.asset_class||'')} · ${esc(m.supply_location||'')} ${price ? '· '+price : ''}</div>
+          <div class="match-side-detail" style="margin-top:3px;color:var(--text-2);font-size:9px">${esc((m.supply_headline||'').slice(0,70))}</div>
+        </div>
+        <div class="match-arrow">⇄</div>
+        <div class="match-side buy">
+          <div class="match-side-type">🟢 DEMAND</div>
+          <div class="match-side-name">${esc(m.demand_company||'Unknown')}</div>
+          <div class="match-side-detail">${esc(m.signal_type||'')} · ${esc(m.demand_location||'')} ${sqft ? '· '+sqft : ''}</div>
+          <div class="match-side-detail" style="margin-top:3px;color:var(--text-2);font-size:9px">${esc((m.why_cre||'').slice(0,70))}</div>
+        </div>
+      </div>
+      <div class="match-action">💼 Broker Action: ${esc(m.broker_action||m.suggested_action||'Review and initiate introduction')}</div>
+    </div>`;
+  });
+  document.getElementById('matchFeed').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PRE-LEASED
+// ═══════════════════════════════════════════════════════════════════
+function toggleThresh() {
+  showThresh = !showThresh;
+  const btn = document.getElementById('threshBtn');
+  btn.classList.toggle('on', showThresh);
+  btn.classList.toggle('g', showThresh);
+  renderPreleased();
+}
+
+function renderPreleased() {
+  const marketF = getActiveFilter('plaMarketFilter');
+  let data = plaData.filter(p => {
+    if (marketF && !(p.micro_market||'').includes(marketF)) return false;
+    if (showThresh && !p.meets_investor_threshold) return false;
+    return true;
+  });
+
+  if (!data.length) { document.getElementById('plaGrid').innerHTML = '<div class="empty" style="grid-column:1/-1">NO PRE-LEASED ASSETS MATCH FILTERS</div>'; return; }
+
+  let html = '';
+  data.forEach(p => {
+    const cap   = parseFloat(p.cap_rate_pct || 0);
+    const above = cap >= 8.5;
+    const exp   = p.lease_expiry_date ? new Date(p.lease_expiry_date).toLocaleDateString('en-IN',{month:'short',year:'numeric'}) : '';
+    const area  = p.total_area_sqft ? `${(p.total_area_sqft/1000).toFixed(0)}k sqft` : '';
+    const price = p.asking_price_crore ? `₹${parseFloat(p.asking_price_crore).toFixed(0)}Cr` : '';
+
+    html += `<div class="pla-card ${p.meets_investor_threshold ? 'target' : ''}">
+      <div class="pla-header">
+        <div>
+          <div class="pla-name">${esc(p.name || p.micro_market || 'Asset')}</div>
+          <div style="font-family:var(--mono);font-size:8px;color:var(--text-3);margin-top:2px">${esc(p.micro_market||'')} · ${esc(p.city||'Mumbai')}</div>
+        </div>
+        <div>
+          <div class="pla-cap ${above ? 'on' : 'off'}">${cap.toFixed(1)}%</div>
+          <div style="font-family:var(--mono);font-size:7px;color:${above ? 'var(--green)' : 'var(--amber)'};text-align:right">CAP RATE</div>
+          ${p.meets_investor_threshold ? '<div style="font-family:var(--mono);font-size:7px;color:var(--green);text-align:right;margin-top:2px">✓ TARGET</div>' : ''}
+        </div>
+      </div>
+      <div class="pla-tenant">
+        ${p.tenant_name ? `🏢 ${esc(p.tenant_name)}` : ''}
+        ${p.tenant_category === 'blue_chip' ? ' <span style="color:var(--green);font-size:9px">[BLUE CHIP]</span>' : ''}
+      </div>
+      <div class="pla-row">
+        ${area ? `<span>📐 ${area}</span>` : ''}
+        ${p.occupancy_pct ? `<span>Occ: ${parseFloat(p.occupancy_pct).toFixed(0)}%</span>` : ''}
+        ${price ? `<span style="color:var(--amber)">${price}</span>` : ''}
+        ${p.rent_per_sqft ? `<span>₹${p.rent_per_sqft}/sqft</span>` : ''}
+        ${exp ? `<span>Lease exp: ${exp}</span>` : ''}
+        ${p.urgency_level !== 'normal' ? `<span style="color:var(--red)">${(p.urgency_level||'').toUpperCase()}</span>` : ''}
+      </div>
+    </div>`;
+  });
+  document.getElementById('plaGrid').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CAP RATES
+// ═══════════════════════════════════════════════════════════════════
+const MMR_MARKETS = new Set(['BKC','Lower Parel','Worli','Andheri East','Powai','Malad','Goregaon','Vikhroli','Thane','Navi Mumbai','Airoli','Belapur','Kharghar','Vashi','Wadala']);
+
+function renderCapRates() {
+  const capF = getActiveFilter('capFilter');
+  // Dedupe: latest snapshot per market
+  const seen = new Map();
+  capData.forEach(c => {
+    const key = c.micro_market + '|' + c.asset_class;
+    if (!seen.has(key)) seen.set(key, c);
+  });
+  let data = Array.from(seen.values());
+  if (capF === 'mmr')   data = data.filter(c => MMR_MARKETS.has(c.micro_market));
+  if (capF === 'above') data = data.filter(c => (c.cap_rate_pct||0) >= 8.5);
+  data.sort((a,b) => (b.cap_rate_pct||0) - (a.cap_rate_pct||0));
+
+  if (!data.length) { document.getElementById('capGrid').innerHTML = '<div class="empty" style="grid-column:1/-1">NO CAP RATE DATA</div>'; return; }
+
+  let html = '';
+  data.forEach(c => {
+    const cap   = parseFloat(c.cap_rate_pct || 0);
+    const above = cap >= 8.5;
+    const isMMR = MMR_MARKETS.has(c.micro_market);
+    html += `<div class="cap-card ${above ? 'above' : 'below'}">
+      <div class="cap-market">${esc(c.micro_market)} ${isMMR ? '<span style="font-family:var(--mono);font-size:7px;color:var(--blue)">MMR</span>' : ''}</div>
+      <div class="cap-rate">${cap.toFixed(2)}%</div>
+      <div style="font-family:var(--mono);font-size:8px;color:${above ? 'var(--green)':'var(--amber)'};margin-top:2px">
+        ${above ? '✓ ABOVE 8.5% TARGET' : `${(8.5-cap).toFixed(2)}% below target`}
+      </div>
+      <div class="cap-meta">
+        ${c.avg_rent_psf ? `Rent: ₹${c.avg_rent_psf}/sqft/mo\n` : ''}
+        ${c.avg_price_psf ? `Capital: ₹${(c.avg_price_psf/1000).toFixed(0)}k/sqft\n` : ''}
+        ${c.asset_class ? `${(c.asset_class||'').replace(/_/g,' ').toUpperCase()}` : ''}
+      </div>
+    </div>`;
+  });
+  document.getElementById('capGrid').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SIDEBAR
+// ═══════════════════════════════════════════════════════════════════
+function renderSidebar() {
+  // Severity bars
+  const sevMap = {critical:0, high:0, medium:0, low:0};
+  supplyData.forEach(e => { const s = e.severity||'medium'; sevMap[s] = (sevMap[s]||0)+1; });
+  const maxSev = Math.max(1, ...Object.values(sevMap));
+  document.getElementById('sevBars').innerHTML = Object.entries(sevMap).map(([k,v]) =>
+    `<div class="sev-row">
+      <span class="sev-lbl">${k.toUpperCase()}</span>
+      <div class="sev-bar-wrap"><div class="sev-bar ${k === 'critical' ? 'crit' : k === 'high' ? 'high' : k === 'medium' ? 'med' : 'low'}" style="width:${(v/maxSev)*100}%"></div></div>
+      <span class="sev-num">${v}</span>
+    </div>`
+  ).join('');
+
+  // Top sources
+  const srcMap = {};
+  supplyData.forEach(e => { const s = e.source||'Unknown'; srcMap[s] = (srcMap[s]||0)+1; });
+  const topSrc = Object.entries(srcMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  document.getElementById('topSources').innerHTML = topSrc.map(([name, ct]) =>
+    `<div class="src-row"><span class="src-name">${esc(name)}</span><span class="src-ct">${ct}</span></div>`
+  ).join('');
+
+  // Investors
+  document.getElementById('investorList').innerHTML = investors.map(inv =>
+    `<div class="inv-card">
+      <div class="inv-name">${esc(inv.investor_name)}</div>
+      <div class="inv-meta">
+        <span class="cap">Cap rate ≥ ${inv.min_cap_rate_pct||'—'}%</span> · ₹${inv.min_deal_size_cr||'—'}–${inv.max_deal_size_cr||'—'}Cr<br>
+        ${(inv.preferred_cities||[]).join(' · ')}
+      </div>
+    </div>`
+  ).join('');
+
+  // Demand signal type bars
+  const sigMap = {};
+  demandData.forEach(d => { const s = d.signal_type||'OTHER'; sigMap[s] = (sigMap[s]||0)+1; });
+  const maxSig = Math.max(1, ...Object.values(sigMap));
+  document.getElementById('sigTypeBars').innerHTML = Object.entries(sigMap).sort((a,b)=>b[1]-a[1]).map(([k,v]) =>
+    `<div class="sev-row">
+      <span class="sev-lbl">${k}</span>
+      <div class="sev-bar-wrap"><div class="sev-bar" style="width:${(v/maxSig)*100}%;background:var(--green)"></div></div>
+      <span class="sev-num">${v}</span>
+    </div>`
+  ).join('');
+
+  // City list
+  const cityMap = {};
+  demandData.forEach(d => { const c = (d.location||'Unknown').split(',')[0].trim(); cityMap[c] = (cityMap[c]||0)+1; });
+  document.getElementById('cityList').innerHTML = Object.entries(cityMap).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([c,n]) =>
+    `<div class="src-row"><span class="src-name">${esc(c)}</span><span class="src-ct">${n}</span></div>`
+  ).join('');
+
+  // Demand sources
+  const dsMap = {};
+  demandData.forEach(d => { const s = d.data_source||'RSS'; dsMap[s] = (dsMap[s]||0)+1; });
+  document.getElementById('demandSources').innerHTML = Object.entries(dsMap).sort((a,b)=>b[1]-a[1]).map(([s,n]) =>
+    `<div class="src-row"><span class="src-name">${esc(s)}</span><span class="src-ct">${n}</span></div>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TICKER
+// ═══════════════════════════════════════════════════════════════════
+function updateTicker() {
+  const items = [];
+  supplyData.slice(0,6).forEach(e => {
+    const price = e.price_crore ? ` · ₹${parseFloat(e.price_crore).toFixed(0)}Cr` : '';
+    items.push(`<span class="ticker-item"><b class="red-b">▼ SUPPLY</b> ${esc(e.company_name||'')} [${(e.channel||'').replace(/_/g,' ').toUpperCase()}]${price}</span>`);
+  });
+  demandData.slice(0,4).forEach(d => {
+    items.push(`<span class="ticker-item"><b class="green-b">▲ DEMAND</b> ${esc(d.company_name||'')} [${d.signal_type||'SIGNAL'}] ${d.urgency||''}</span>`);
+  });
+  matchData.slice(0,3).forEach(m => {
+    items.push(`<span class="ticker-item"><b class="gold-b">⇄ MATCH</b> ${esc(m.supply_company||'')} → ${esc(m.demand_company||'')} [${m.match_score||0}]</span>`);
+  });
+  const doubled = [...items, ...items];
+  const el = document.getElementById('tickerScroll');
+  if (el) el.innerHTML = doubled.join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════════════════════════
+function switchTab(name) {
+  const panels = ['supply','demand','matches','preleased','caprates','config'];
+  panels.forEach(p => {
+    document.getElementById(`panel${p.charAt(0).toUpperCase()+p.slice(1)}`)?.classList.remove('active');
+    document.getElementById(`tab${p.charAt(0).toUpperCase()+p.slice(1)}`)?.classList.remove('active');
+  });
+  document.getElementById(`panel${name.charAt(0).toUpperCase()+name.slice(1)}`)?.classList.add('active');
+  document.getElementById(`tab${name.charAt(0).toUpperCase()+name.slice(1)}`)?.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// FILTER BUTTONS
+// ═══════════════════════════════════════════════════════════════════
+function initFilterGroup(groupId, onColor, renderFn) {
+  document.getElementById(groupId)?.querySelectorAll('.tb-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll(`#${groupId} .tb-btn`).forEach(b => b.classList.remove('on','g','o','b'));
+      this.classList.add('on');
+      if (onColor) this.classList.add(onColor);
+      renderFn();
+    });
+  });
+}
+initFilterGroup('chanFilter', '',  renderSupply);
+initFilterGroup('sevFilter',  '',  renderSupply);
+initFilterGroup('sigFilter',  'g', renderDemand);
+initFilterGroup('urgFilter',  'g', renderDemand);
+initFilterGroup('matchStatusFilter', 'o', renderMatches);
+initFilterGroup('plaMarketFilter', 'b', renderPreleased);
+initFilterGroup('capFilter', 'b', renderCapRates);
+
+// ═══════════════════════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════════════════════
+loadConfig();
+loadAll();
+// Auto-refresh every 5 minutes
+setInterval(loadAll, 5 * 60 * 1000);
+</script>
+</body>
+</html>

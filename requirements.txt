@@ -1,34 +1,29 @@
-# Nexus Asia Intel — unified requirements
-# Core HTTP + parsing
+# Nexus Asia Intel — requirements
+# Versions taken directly from original nexus-asia-distress-radar + nexus-prop-intel repos
+
+# HTTP + parsing
 requests==2.31.0
-beautifulsoup4==4.12.3
-lxml==5.1.0
+beautifulsoup4==4.12.2
+lxml==4.9.4
 feedparser==6.0.10
 
-# NLP
+# NLP (exact version from prop-intel repo)
 spacy==3.7.2
-# After install run: python -m spacy download en_core_web_sm
+# GitHub Actions installs model via: python -m spacy download en_core_web_sm
 
 # Database
 supabase==2.7.0
 
-# Firecrawl (anti-bot bypass)
+# Firecrawl anti-bot bypass (from distress radar repo)
 firecrawl-py==1.4.0
-
-# PDF parsing
-pdfplumber==0.10.3
 
 # Scheduling
 apscheduler==3.10.4
 
 # Environment
-python-dotenv==1.0.1
+python-dotenv==1.0.0
 
-# API server (optional — for REST API endpoint)
+# API
 fastapi==0.109.0
 uvicorn==0.27.0
 httpx==0.27.0
-
-# Playwright (optional — for JS-heavy portals without Firecrawl)
-# playwright==1.41.0
-# Install with: playwright install chromium

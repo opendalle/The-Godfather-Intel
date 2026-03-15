@@ -702,6 +702,140 @@ header {
   .stat-row     { grid-template-columns: repeat(3, 1fr); }
   .header-center { display: none; }
 }
+
+/* ── DOSSIER PANEL ──────────────────────────────────────────── */
+.dossier-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: 1000; opacity: 0; pointer-events: none;
+  transition: opacity 0.2s;
+}
+.dossier-overlay.open { opacity: 1; pointer-events: all; }
+.dossier {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: min(680px, 100vw);
+  background: var(--bg-2);
+  border-left: 1px solid var(--border-2);
+  z-index: 1001;
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.25s cubic-bezier(0.16,1,0.3,1);
+  overflow: hidden;
+}
+.dossier.open { transform: translateX(0); }
+.dossier-header {
+  display: flex; align-items: flex-start;
+  justify-content: space-between;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0; gap: 14px;
+}
+.dossier-type-tag {
+  font-family: var(--mono); font-size: 7px;
+  letter-spacing: 0.25em; text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.dossier-company {
+  font-family: var(--syne); font-size: 22px; font-weight: 800;
+  line-height: 1.1; color: var(--text-1);
+}
+.dossier-close {
+  background: var(--bg-3); border: 1px solid var(--border-2);
+  color: var(--text-2); font-family: var(--mono); font-size: 11px;
+  padding: 6px 12px; cursor: pointer; flex-shrink: 0;
+  transition: all 0.12s; margin-top: 2px;
+}
+.dossier-close:hover { background: var(--bg-4); color: var(--text-1); }
+.dossier-body { flex: 1; overflow-y: auto; padding: 0; }
+.dossier-section { padding: 16px 22px; border-bottom: 1px solid var(--border); }
+.dossier-section:last-child { border-bottom: none; }
+.dossier-section-title {
+  font-family: var(--mono); font-size: 8px;
+  letter-spacing: 0.22em; color: var(--text-3);
+  text-transform: uppercase; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.dossier-section-title::before {
+  content: ''; display: inline-block;
+  width: 3px; height: 10px; border-radius: 2px;
+}
+.dst-red::before   { background: var(--red); }
+.dst-green::before { background: var(--green); }
+.dst-gold::before  { background: var(--gold); }
+.dst-blue::before  { background: var(--blue); }
+.dst-amber::before { background: var(--amber); }
+.dossier-headline {
+  font-family: var(--syne); font-size: 15px; font-weight: 600;
+  color: var(--text-1); line-height: 1.5; margin-bottom: 10px;
+}
+.dossier-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border); margin-bottom: 14px;
+}
+.dossier-kv { background: var(--bg-3); padding: 10px 12px; }
+.dossier-kv-label {
+  font-family: var(--mono); font-size: 7px;
+  letter-spacing: 0.18em; color: var(--text-3);
+  text-transform: uppercase; margin-bottom: 4px;
+}
+.dossier-kv-value {
+  font-family: var(--mono); font-size: 13px; font-weight: 700;
+  color: var(--text-1); line-height: 1.2;
+}
+.dossier-kv-value.red    { color: var(--red); }
+.dossier-kv-value.green  { color: var(--green); }
+.dossier-kv-value.gold   { color: var(--gold); }
+.dossier-kv-value.amber  { color: var(--amber); }
+.dossier-kv-value.blue   { color: var(--blue); }
+.dossier-text-block {
+  font-size: 12px; color: var(--text-2); line-height: 1.65;
+  padding: 12px 14px; background: var(--bg-3);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  margin-bottom: 10px;
+}
+.dossier-action-box {
+  background: var(--gold-dim);
+  border: 1px solid rgba(245,197,24,0.2);
+  padding: 14px 16px; border-radius: var(--radius); margin-bottom: 10px;
+}
+.dossier-action-label {
+  font-family: var(--mono); font-size: 8px;
+  letter-spacing: 0.2em; color: var(--gold);
+  text-transform: uppercase; margin-bottom: 6px;
+}
+.dossier-action-text {
+  font-family: var(--syne); font-size: 13px; font-weight: 600;
+  color: var(--gold); line-height: 1.5;
+}
+.dossier-source-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em;
+  padding: 8px 16px; border: 1px solid var(--border-2);
+  color: var(--text-2); cursor: pointer; transition: all 0.12s;
+  text-decoration: none; background: var(--bg-3);
+  text-transform: uppercase; margin-right: 8px; margin-top: 4px;
+}
+.dossier-source-btn:hover { border-color: var(--text-3); color: var(--text-1); background: var(--bg-4); }
+.dossier-source-btn.primary { background: var(--red); border-color: var(--red); color: #fff; }
+.dossier-source-btn.primary:hover { opacity: 0.85; }
+.dossier-source-btn.g-btn { background: var(--green); border-color: var(--green); color: #000; }
+.dossier-match-sides { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.dossier-match-side {
+  background: var(--bg-3); border: 1px solid var(--border-2);
+  padding: 14px; border-radius: var(--radius);
+}
+.dossier-match-side.sell { border-top: 3px solid var(--red); }
+.dossier-match-side.buy  { border-top: 3px solid var(--green); }
+.dossier-match-side-type {
+  font-family: var(--mono); font-size: 8px; letter-spacing: 0.18em; margin-bottom: 6px;
+}
+.sell .dossier-match-side-type { color: var(--red); }
+.buy  .dossier-match-side-type { color: var(--green); }
+.dossier-match-company { font-family: var(--syne); font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.dossier-match-detail  { font-family: var(--mono); font-size: 9px; color: var(--text-3); line-height: 1.7; }
+.ev-card, .ds-card, .match-card { cursor: pointer; }
+
 </style>
 </head>
 <body>
@@ -1065,7 +1199,22 @@ function updateStats() {
 }
 
 function set(id, val) { const el = document.getElementById(id); if(el) el.textContent = val; }
-function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s) {
+  if (!s) return '';
+  // Strip HTML tags and decode common entities before escaping
+  s = String(s)
+    .replace(/<[^>]*>/g, '')           // strip HTML tags
+    .replace(/&nbsp;/g, ' ')           // nbsp to space
+    .replace(/&amp;/g, '&')            // decode & first
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')              // collapse whitespace
+    .trim();
+  // Re-escape for safe HTML insertion
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // SUPPLY FEED
@@ -1095,8 +1244,11 @@ function renderSupply() {
   if (!data.length) { document.getElementById('supplyFeed').innerHTML = '<div class="empty">NO LIVE SUPPLY SIGNALS IN DATABASE — CHECK PIPELINE</div>'; return; }
 
   let html = '';
-  data.forEach(e => {
+  window._supplyCache = {};
+  data.forEach((e, _si) => {
+    window._supplyCache[_si] = e;
     const score = e.deal_score || 0;
+    const _supplyIdx = _si;
     const sc = score >= 75 ? 'var(--red)' : score >= 55 ? 'var(--amber)' : 'var(--text-3)';
     const ch  = e.channel || 'other';
     const price = e.price_crore ? `₹${parseFloat(e.price_crore).toFixed(0)}Cr` : '';
@@ -1108,7 +1260,7 @@ function renderSupply() {
     const borderClass = ch==='sarfaesi'?'c-red':ch==='bank_auction'?'c-amber':ch==='drt'?'c-blue':ch==='arc_portfolio'?'c-purple':'';
     const badgeClass  = ch==='sarfaesi'?'badge-red':ch==='bank_auction'?'badge-amber':ch==='arc_portfolio'?'badge-purple':ch==='drt'?'badge-blue':'badge-dim';
 
-    html += `<div class="ev-card ${borderClass}" onclick="openUrl('${esc(e.url||'')}');" title="${esc(e.headline||'')}">
+    html += `<div class="ev-card ${borderClass}" onclick="openDossier('supply',window._supplyCache[${_supplyIdx}])" title="${esc(e.headline||'')}">
       <div class="ev-score">
         <div class="ev-score-num" style="color:${sc}">${score}</div>
         <div class="ev-score-lbl" style="color:${sc}">SCORE</div>
@@ -1150,16 +1302,27 @@ function renderDemand() {
   const sigF   = getActiveFilter('sigFilter');
   const urgF   = getActiveFilter('urgFilter');
   const search = (document.getElementById('demandSearch')?.value||'').toLowerCase();
+  const _IPO_SPAM = /^(ipo|funding|hiring|signal|unknown|centre|center|india startup|agritech startup|shesparks|steelex|epfo|oman india)$/i;
+  const _IPO_WHY = /ipo\/listing.*hq upgrade.*compliance space/i;
   let data = demandData.filter(d => {
     if (sigF && d.signal_type !== sigF) return false;
     if (urgF && d.urgency !== urgF)     return false;
     if (search && !d.company_name?.toLowerCase().includes(search) && !d.location?.toLowerCase().includes(search) && !(d.data_source||'').toLowerCase().includes(search)) return false;
+    // Client-side spam filter — catches boilerplate signals the pipeline missed
+    const cn = (d.company_name||'').trim();
+    if (_IPO_SPAM.test(cn)) return false;
+    if (cn.length <= 2) return false;
+    if (_IPO_WHY.test(d.why_cre||'') && cn.length < 8) return false;
+    // Filter generic expansion signals with no real intelligence
+    if ((d.why_cre||'') === 'expand signal detected via expansion') return false;
     return true;
   });
   if (!data.length) { document.getElementById('demandFeed').innerHTML = '<div class="empty">NO LIVE DEMAND SIGNALS IN DATABASE — CHECK PIPELINE</div>'; return; }
 
   let html = '';
-  data.forEach(d => {
+  window._demandCache = {};
+  data.forEach((d, _dci) => {
+    window._demandCache[_dci] = d;
     const conf = d.confidence_score || 0;
     const sc = SIG_COLORS[d.signal_type] || 'var(--green)';
     const uc = URG_COLORS[d.urgency] || 'var(--text-3)';
@@ -1167,7 +1330,7 @@ function renderDemand() {
     const sqft    = d.sqft_mentioned ? ` · ${(d.sqft_mentioned/1000).toFixed(0)}k sqft` : '';
     const funding = d.funding_amount_cr ? ` · ₹${parseFloat(d.funding_amount_cr).toFixed(0)}Cr raised` : '';
 
-    html += `<div class="ds-card">
+    html += `<div class="ds-card" onclick="openDossier('demand',window._demandCache[${_dci}])">
       <div class="ds-head">
         <div>
           <span class="ds-company">${esc(d.company_name||'Unknown')}</span>
@@ -1214,12 +1377,14 @@ function renderMatches() {
   if (!data.length) { document.getElementById('matchFeed').innerHTML = '<div class="empty">NO DEAL MATCHES IN DATABASE — DEAL MATCHING ENGINE PRODUCED 0 MATCHES THIS RUN</div>'; return; }
 
   let html = '';
-  data.forEach(m => {
+  window._matchCache = {};
+  data.forEach((m, _mci) => {
+    window._matchCache[_mci] = m;
     const sc    = m.match_score || 0;
     const price = m.price_crore ? `₹${parseFloat(m.price_crore).toFixed(0)}Cr` : '';
     const sqft  = m.sqft_mentioned ? `${(m.sqft_mentioned/1000).toFixed(0)}k sqft needed` : '';
 
-    html += `<div class="match-card">
+    html += `<div class="match-card" onclick="openDossier('match',window._matchCache[${_mci}])">
       <div class="match-score-row">
         <div>
           <div class="match-score">${sc}</div>
@@ -1272,14 +1437,16 @@ function renderPreleased() {
   if (!data.length) { document.getElementById('plaGrid').innerHTML = '<div class="empty" style="grid-column:1/-1">NO PRE-LEASED ASSETS IN DATABASE</div>'; return; }
 
   let html = '';
-  data.forEach(p => {
+  window._plaCache = {};
+  data.forEach((p, _pci) => {
+    window._plaCache[_pci] = p;
     const cap   = parseFloat(p.cap_rate_pct || 0);
     const above = cap >= 8.5;
     const exp   = p.lease_expiry_date ? new Date(p.lease_expiry_date).toLocaleDateString('en-IN',{month:'short',year:'numeric'}) : '';
     const area  = p.total_area_sqft ? `${(p.total_area_sqft/1000).toFixed(0)}k sqft` : '';
     const price = p.asking_price_crore ? `₹${parseFloat(p.asking_price_crore).toFixed(0)}Cr` : '';
 
-    html += `<div class="pla-card ${p.meets_investor_threshold ? 'target' : ''}">
+    html += `<div class="pla-card ${p.meets_investor_threshold ? 'target' : ''}" onclick="openDossier('preleased',window._plaCache[${_pci}])">
       <div class="pla-header">
         <div>
           <div class="pla-name">${esc(p.name || p.micro_market || 'Asset')}</div>
@@ -1486,6 +1653,259 @@ function filterDemandByDataSource(src) {
   if (el) { el.value = src; renderDemand(); }
 }
 
+
+// ═══════════════════════════════════════════════════════════════════
+// DOSSIER SYSTEM
+// ═══════════════════════════════════════════════════════════════════
+
+let _dossierOpen = false;
+
+function openDossier(type, data) {
+  const overlay = document.getElementById('dossierOverlay');
+  const panel   = document.getElementById('dossierPanel');
+  const typeTag = document.getElementById('dossierTypeTag');
+  const company = document.getElementById('dossierCompany');
+  const body    = document.getElementById('dossierBody');
+
+  const TYPE_COLORS = {
+    supply: 'var(--red)', demand: 'var(--green)',
+    match:  'var(--gold)', preleased: 'var(--blue)'
+  };
+  const TYPE_LABELS = {
+    supply: '🔴 SUPPLY SIGNAL', demand: '🟢 DEMAND SIGNAL',
+    match:  '🤝 DEAL MATCH', preleased: '🏢 PRE-LEASED ASSET'
+  };
+
+  typeTag.textContent = TYPE_LABELS[type] || type.toUpperCase();
+  typeTag.style.color = TYPE_COLORS[type] || 'var(--text-2)';
+
+  if (type === 'supply')    { company.textContent = data.company_name || 'Unknown'; body.innerHTML = _buildSupplyDossier(data); }
+  if (type === 'demand')    { company.textContent = data.company_name || 'Unknown'; body.innerHTML = _buildDemandDossier(data); }
+  if (type === 'match')     { company.textContent = `${data.supply_company} → ${data.demand_company}`; body.innerHTML = _buildMatchDossier(data); }
+  if (type === 'preleased') { company.textContent = data.name || data.micro_market || 'Asset'; body.innerHTML = _buildPreleasedDossier(data); }
+
+  overlay.classList.add('open');
+  panel.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  _dossierOpen = true;
+}
+
+function closeDossier() {
+  document.getElementById('dossierOverlay').classList.remove('open');
+  document.getElementById('dossierPanel').classList.remove('open');
+  document.body.style.overflow = '';
+  _dossierOpen = false;
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && _dossierOpen) closeDossier(); });
+
+// ── SUPPLY DOSSIER ─────────────────────────────────────────────
+function _buildSupplyDossier(e) {
+  const score = e.deal_score || 0;
+  const scoreColor = score >= 75 ? 'red' : score >= 55 ? 'amber' : '';
+  const price = e.price_crore ? `₹${parseFloat(e.price_crore).toFixed(0)} Cr` : '—';
+  const dt = e.detected_at ? new Date(e.detected_at).toLocaleString('en-IN', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+  let meta = {};
+  try { meta = typeof e.metadata === 'string' ? JSON.parse(e.metadata) : (e.metadata||{}); } catch(_){}
+
+  const CHAN_LABELS = { bank_auction:'BANK AUCTION', sarfaesi:'SARFAESI', drt:'DRT PRE-AUCTION', arc_portfolio:'ARC PORTFOLIO', regulatory:'REGULATORY', media:'MEDIA', other:'OTHER' };
+  const SEV_COLORS2 = { critical:'red', high:'amber', medium:'blue', low:'' };
+
+  return `
+    <div class="dossier-section">
+      <div class="dossier-section-title dst-red">Signal Intelligence</div>
+      <div class="dossier-grid">
+        <div class="dossier-kv"><div class="dossier-kv-label">Deal Score</div><div class="dossier-kv-value ${scoreColor}">${score}</div></div>
+        <div class="dossier-kv"><div class="dossier-kv-label">Severity</div><div class="dossier-kv-value ${SEV_COLORS2[e.severity||'medium']}">${(e.severity||'—').toUpperCase()}</div></div>
+        <div class="dossier-kv"><div class="dossier-kv-label">Channel</div><div class="dossier-kv-value">${CHAN_LABELS[e.channel||'other']||'—'}</div></div>
+        <div class="dossier-kv"><div class="dossier-kv-label">Asset Class</div><div class="dossier-kv-value">${(e.asset_class||'—').toUpperCase()}</div></div>
+        <div class="dossier-kv"><div class="dossier-kv-label">Location</div><div class="dossier-kv-value">${e.location||'—'} ${e.is_mmr?'<span style="color:var(--blue);font-size:9px">MMR</span>':''}</div></div>
+        <div class="dossier-kv"><div class="dossier-kv-label">Reserve / Value</div><div class="dossier-kv-value green">${price}</div></div>
+      </div>
+      ${meta.bank ? `<div class="dossier-kv" style="margin-bottom:8px"><div class="dossier-kv-label">Bank</div><div class="dossier-kv-value">${esc(meta.bank)}</div></div>` : ''}
+      ${meta.auction_date ? `<div class="dossier-kv" style="margin-bottom:8px"><div class="dossier-kv-label">Auction Date</div><div class="dossier-kv-value amber">${esc(meta.auction_date)}</div></div>` : ''}
+    </div>
+
+    <div class="dossier-section">
+      <div class="dossier-section-title dst-red">Full Headline</div>
+      <div class="dossier-headline">${esc(e.headline||'No headline available')}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+        <span style="font-family:var(--mono);font-size:8px;color:var(--text-3)">Source: ${esc(e.source||'—')}</span>
+        <span style="font-family:var(--mono);font-size:8px;color:var(--text-3)">Detected: ${dt}</span>
+      </div>
+    </div>
+
+    ${e.url && e.url !== '#' ? `
+    <div class="dossier-section">
+      <div class="dossier-section-title dst-red">Source Document</div>
+      <a class="dossier-source-btn primary" href="${esc(e.url)}" target="_blank" rel="noopener">
+        ↗ OPEN ORIGINAL SOURCE
+      </a>
+      <div style="font-family:var(--mono);font-size:8px;color:var(--text-3);margin-top:8px;word-break:break-all">${esc(e.url)}</div>
+    </div>` : ''}
+
+    <div class="dossier-section">
+      <div class="dossier-section-title dst-gold">Broker Intelligence</div>
+      <div class="dossier-action-box">
+        <div class="dossier-action-label">💼 Suggested Action</div>
+        <div class="dossier-action-text">Review ${esc(e.company_name||'this asset')} — ${CHAN_LABELS[e.channel||'other']} in ${esc(e.location||'India')}${e.price_crore ? ` at ₹${parseFloat(e.price_crore).toFixed(0)}Cr` : ''}. ${e.severity === 'critical' ? 'CRITICAL — act within 48 hours before resolution professional assigns.' : e.severity === 'high' ? 'HIGH urgency — initiate buyer introduction this week.' : 'Assess and match to relevant demand in pipeline.'}</div>
+      </div>
+      <div style="font-family:var(--mono);font-size:8px;color:var(--text-3);margin-top:8px">Signal ID: ${esc(e.id||'—')} · UID: ${esc((e.uid||'').slice(0,16))}…</div>
+    </div>
+  `;
+}
+
+// ── DEMAND DOSSIER ─────────────────────────────────────────────
+function _buildDemandDossier(d) {
+  const conf = d.confidence_score || 0;
+  const SIG_COLORS2 = { LEASE:'green', OFFICE:'blue', EXPAND:'green', RELOCATE:'amber', FUNDING:'', HIRING:'amber', GCC:'green', IPO_LISTING:'amber', DATACENTER:'blue', WAREHOUSE:'amber', NEW_ENTRANT:'green' };
+  const URG_COLORS2 = { CRITICAL:'red', HIGH:'amber', MEDIUM:'blue', LOW:'' };
+  const dt = d.detected_at ? new Date(d.detected_at).toLocaleString('en-IN', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+  const sqft = d.sqft_mentioned ? `${(d.sqft_mentioned/1000).toFixed(0)}k sqft` : '—';
+  const funding = d.funding_amount_cr ? `₹${parseFloat(d.funding_amount_cr).toFixed(0)} Cr` : '—';
+
+  return `
+    <div class="dossier-section">
+      <div class="dossier-section-title dst-green">Demand Intelligence</div>
+      <div class="dossier-grid">
+        <div class="dossier-kv"><div class="dossier-kv-label">Confidence</div><div class="dossier-kv-value green">${conf}%</div></div>
+        <div class="dossier-kv"><div class="dossier-kv-label">Signal Type</div><div class="dossier-kv-value ${SIG_COLORS2[d.signal_type||'']||''}">${d.signal_type||'—'}</div></div>
+        <div class="dossier-kv"><div class="dossier-kv-label">Urgency</div><div class="dossier-kv-value ${URG_COLORS2[d.urgency||'']||''}">${d.urgency||'—'}</div></div>
+        <div class="dossier-kv"><div class="dossier-kv-label">Location</div><div class="dossier-kv-value">${esc(d.location||'—')}</div></div>
+        <div class="dossier-kv"><div class="dossier-kv-label">Space Required</div><div class="dossier-kv-value">${sqft}</div></div>
+        <div class="dossier-kv"><div class="dossier-kv-label">Capital Raised</div><div class="dossier-kv-value amber">${funding}</div></div>
+      </div>
+    </div>
+
+    <div class="dossier-section">
+      <div class="dossier-section-title dst-green">Why CRE — Full Analysis</div>
+      <div class="dossier-text-block">${esc(d.why_cre || d.summary || 'No analysis available')}</div>
+    </div>
+
+    <div class="dossier-section">
+      <div class="dossier-section-title dst-gold">Broker Action</div>
+      <div class="dossier-action-box">
+        <div class="dossier-action-label">💼 Suggested Next Step</div>
+        <div class="dossier-action-text">${esc(d.suggested_action||'Review and assess CRE opportunity')}</div>
+      </div>
+    </div>
+
+    <div class="dossier-section">
+      <div class="dossier-section-title dst-blue">Source</div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+        <span style="font-family:var(--mono);font-size:9px;background:var(--bg-3);border:1px solid var(--border-2);padding:4px 10px;color:var(--text-2)">${esc(d.data_source||'—')}</span>
+        <span style="font-family:var(--mono);font-size:8px;color:var(--text-3)">${dt}</span>
+      </div>
+      ${d.source_url && d.source_url !== '#' ? `
+      <a class="dossier-source-btn g-btn" href="${esc(d.source_url)}" target="_blank" rel="noopener">
+        ↗ OPEN ORIGINAL FILING / ARTICLE
+      </a>
+      <div style="font-family:var(--mono);font-size:8px;color:var(--text-3);margin-top:8px;word-break:break-all">${esc(d.source_url)}</div>` :
+      `<div style="font-family:var(--mono);font-size:9px;color:var(--text-3)">No direct source URL stored — check ${esc(d.data_source||'source')} portal directly.</div>`}
+      <div style="font-family:var(--mono);font-size:8px;color:var(--text-4);margin-top:10px">Signal ID: ${esc(d.id||'—')}</div>
+    </div>
+  `;
+}
+
+// ── MATCH DOSSIER ──────────────────────────────────────────────
+function _buildMatchDossier(m) {
+  const price = m.price_crore ? `₹${parseFloat(m.price_crore).toFixed(0)} Cr` : '—';
+  const sqft  = m.sqft_mentioned ? `${(m.sqft_mentioned/1000).toFixed(0)}k sqft` : '—';
+  const dt    = m.matched_at ? new Date(m.matched_at).toLocaleString('en-IN', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+  const scoreColor = (m.match_score||0) >= 70 ? 'gold' : (m.match_score||0) >= 50 ? 'amber' : '';
+
+  return `
+    <div class="dossier-section">
+      <div class="dossier-section-title dst-gold">Match Score & Rationale</div>
+      <div class="dossier-grid">
+        <div class="dossier-kv"><div class="dossier-kv-label">Match Score</div><div class="dossier-kv-value ${scoreColor}">${m.match_score||0}</div></div>
+        <div class="dossier-kv"><div class="dossier-kv-label">Status</div><div class="dossier-kv-value">${(m.status||'new').toUpperCase()}</div></div>
+        <div class="dossier-kv"><div class="dossier-kv-label">Matched At</div><div class="dossier-kv-value" style="font-size:9px">${dt}</div></div>
+      </div>
+      <div class="dossier-text-block">${esc(m.match_reason||'—')}</div>
+    </div>
+
+    <div class="dossier-section">
+      <div class="dossier-section-title dst-gold">Parties</div>
+      <div class="dossier-match-sides">
+        <div class="dossier-match-side sell">
+          <div class="dossier-match-side-type">🔴 SUPPLY — SELLER</div>
+          <div class="dossier-match-company">${esc(m.supply_company||'Unknown')}</div>
+          <div class="dossier-match-detail">
+            Asset class: ${esc(m.asset_class||'—')}<br>
+            Location: ${esc(m.supply_location||'—')}<br>
+            Value: ${price}<br>
+            Channel: ${esc((m.channel||'—').replace(/_/g,' ').toUpperCase())}<br>
+            <span style="color:var(--text-2);font-size:9px">${esc((m.supply_headline||'').slice(0,100))}</span>
+          </div>
+          ${m.supply_url && m.supply_url !== '#' ? `<a class="dossier-source-btn primary" href="${esc(m.supply_url)}" target="_blank" rel="noopener" style="margin-top:10px;font-size:8px">↗ SOURCE</a>` : ''}
+        </div>
+        <div class="dossier-match-side buy">
+          <div class="dossier-match-side-type">🟢 DEMAND — BUYER</div>
+          <div class="dossier-match-company">${esc(m.demand_company||'Unknown')}</div>
+          <div class="dossier-match-detail">
+            Signal: ${esc(m.signal_type||'—')}<br>
+            Location: ${esc(m.demand_location||'—')}<br>
+            Space: ${sqft}<br>
+            Urgency: ${esc(m.urgency||'—')}<br>
+            <span style="color:var(--text-2);font-size:9px">${esc((m.why_cre||'').slice(0,100))}</span>
+          </div>
+          ${m.demand_source_url && m.demand_source_url !== '#' ? `<a class="dossier-source-btn g-btn" href="${esc(m.demand_source_url)}" target="_blank" rel="noopener" style="margin-top:10px;font-size:8px">↗ SOURCE</a>` : ''}
+        </div>
+      </div>
+    </div>
+
+    <div class="dossier-section">
+      <div class="dossier-section-title dst-gold">Broker Action</div>
+      <div class="dossier-action-box">
+        <div class="dossier-action-label">💼 What To Do Right Now</div>
+        <div class="dossier-action-text">${esc(m.broker_action||m.suggested_action||'Review match and initiate introduction')}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ── PRE-LEASED DOSSIER ─────────────────────────────────────────
+function _buildPreleasedDossier(p) {
+  const cap   = parseFloat(p.cap_rate_pct||0);
+  const above = cap >= 8.5;
+  const area  = p.total_area_sqft ? `${(p.total_area_sqft/1000).toFixed(0)}k sqft` : '—';
+  const price = p.asking_price_crore ? `₹${parseFloat(p.asking_price_crore).toFixed(0)} Cr` : '—';
+  const exp   = p.lease_expiry_date ? new Date(p.lease_expiry_date).toLocaleDateString('en-IN',{month:'short',year:'numeric'}) : '—';
+
+  return `
+    <div class="dossier-section">
+      <div class="dossier-section-title dst-blue">Asset Details</div>
+      <div class="dossier-grid">
+        <div class="dossier-kv"><div class="dossier-kv-label">Cap Rate</div><div class="dossier-kv-value ${above?'green':'amber'}">${cap.toFixed(2)}%</div></div>
+        <div class="dossier-kv"><div class="dossier-kv-label">Asking Price</div><div class="dossier-kv-value amber">${price}</div></div>
+        <div class="dossier-kv"><div class="dossier-kv-label">Total Area</div><div class="dossier-kv-value">${area}</div></div>
+        <div class="dossier-kv"><div class="dossier-kv-label">Market</div><div class="dossier-kv-value">${esc(p.micro_market||'—')}</div></div>
+        <div class="dossier-kv"><div class="dossier-kv-label">Occupancy</div><div class="dossier-kv-value green">${p.occupancy_pct ? parseFloat(p.occupancy_pct).toFixed(0)+'%' : '—'}</div></div>
+        <div class="dossier-kv"><div class="dossier-kv-label">Rent/sqft</div><div class="dossier-kv-value">${p.rent_per_sqft ? '₹'+p.rent_per_sqft : '—'}</div></div>
+        <div class="dossier-kv"><div class="dossier-kv-label">Lease Expiry</div><div class="dossier-kv-value ${p.urgency_level==='distressed'?'red':'amber'}">${exp}</div></div>
+        <div class="dossier-kv"><div class="dossier-kv-label">Asset Class</div><div class="dossier-kv-value">${(p.asset_class||'—').replace(/_/g,' ').toUpperCase()}</div></div>
+        <div class="dossier-kv"><div class="dossier-kv-label">Investor Target</div><div class="dossier-kv-value ${p.meets_investor_threshold?'green':''}">${p.meets_investor_threshold?'✓ YES':'NO'}</div></div>
+      </div>
+    </div>
+    <div class="dossier-section">
+      <div class="dossier-section-title dst-green">Tenant Profile</div>
+      <div class="dossier-text-block">
+        <strong style="color:var(--text-1)">${esc(p.tenant_name||'—')}</strong><br>
+        Category: ${esc(p.tenant_category||'—')}<br>
+        ${p.tenant_category==='blue_chip'?'<span style="color:var(--green)">✓ BLUE CHIP — institutional grade tenant</span>':''}
+      </div>
+    </div>
+    <div class="dossier-section">
+      <div class="dossier-section-title dst-gold">Broker Action</div>
+      <div class="dossier-action-box">
+        <div class="dossier-action-label">💼 Suggested Action</div>
+        <div class="dossier-action-text">${p.meets_investor_threshold ? `Target asset — cap rate ${cap.toFixed(2)}% exceeds 8.5% threshold. Present to mandated investors immediately.` : `Cap rate ${cap.toFixed(2)}% is below 8.5% investor threshold. Position for owner-occupier or yield-seeking HNI buyer.`}</div>
+      </div>
+    </div>
+  `;
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // BOOT
 // ═══════════════════════════════════════════════════════════════════
@@ -1494,5 +1914,20 @@ loadAll();
 // Auto-refresh every 5 minutes
 setInterval(loadAll, 5 * 60 * 1000);
 </script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     DOSSIER PANEL
+     ═══════════════════════════════════════════════════════════ -->
+<div class="dossier-overlay" id="dossierOverlay" onclick="closeDossier()"></div>
+<div class="dossier" id="dossierPanel">
+  <div class="dossier-header">
+    <div style="flex:1;min-width:0">
+      <div class="dossier-type-tag" id="dossierTypeTag"></div>
+      <div class="dossier-company" id="dossierCompany"></div>
+    </div>
+    <button class="dossier-close" onclick="closeDossier()">✕ CLOSE</button>
+  </div>
+  <div class="dossier-body" id="dossierBody"></div>
+</div>
 </body>
 </html>

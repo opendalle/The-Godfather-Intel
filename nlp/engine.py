@@ -549,3 +549,131 @@ def is_ipo_spam(company_name: str, why_cre: str) -> bool:
         if len(company_name.strip()) < 4:
             return True
     return False
+
+
+# ─────────────────────────────────────────────────────────────────
+# LEGACY COMPATIBILITY LAYER
+# Required by: crawlers/base.py, main.py
+# These wrap the new intelligence engine for backward compatibility
+# ─────────────────────────────────────────────────────────────────
+
+SEVERITY_MAP = {
+    "cirp":         "critical",
+    "liquidation":  "critical",
+    "sarfaesi":     "critical",
+    "bank_auction": "high",
+    "drt":          "high",
+    "arc_portfolio":"high",
+    "regulatory":   "high",
+    "media":        "medium",
+    "other":        "medium",
+}
+
+def get_severity(category: str) -> str:
+    """Map signal category to severity level. Used by base.py."""
+    return SEVERITY_MAP.get((category or "").lower(), "medium")
+
+
+PRICE_RE = re.compile(
+    r"(?:rs\.?\s*|₹|inr\s*)([\d,]+(?:\.\d+)?)\s*(cr(?:ore)?|lakh)",
+    re.IGNORECASE,
+)
+
+def extract_price_crore(text: str) -> Optional[float]:
+    """Extract price in crore from text. Used by base.py."""
+    m = PRICE_RE.search(text or "")
+    if not m:
+        return None
+    try:
+        val = float(m.group(1).replace(",", ""))
+        return val if "cr" in m.group(2).lower() else val / 100
+    except Exception:
+        return None
+
+
+DISTRESS_KEYWORDS = [
+    "sarfaesi", "section 13", "possession notice", "drt", "nclt", "cirp",
+    "liquidation", "insolvency", "npa", "non-performing", "e-auction",
+    "bank auction", "one time settlement", "ots", "arc portfolio",
+    "asset reconstruction", "recovery proceedings", "debt recovery",
+]
+
+def detect_distress_keywords(text: str) -> list:
+    """Return list of distress keywords found in text. Used by main.py."""
+    text_lower = (text or "").lower()
+    return [kw for kw in DISTRESS_KEYWORDS if kw in text_lower]
+
+
+DEMAND_SIGNAL_MAP = {
+    "lease":      "LEASE",
+    "office":     "OFFICE",
+    "expand":     "EXPAND",
+    "expansion":  "EXPAND",
+    "relocat":    "RELOCATE",
+    "hiring":     "HIRING",
+    "headcount":  "HIRING",
+    "funding":    "FUNDING",
+    "raised":     "FUNDING",
+    "series":     "FUNDING",
+    "warehouse":  "WAREHOUSE",
+    "data centre":"DATACENTER",
+    "data center":"DATACENTER",
+    "gcc":        "GCC",
+    "global capability": "GCC",
+    "subsidiary": "EXPAND",
+    "incorporat": "EXPAND",
+    "ipo":        "IPO_LISTING",
+    "drhp":       "IPO_LISTING",
+}
+
+def classify_demand_signal(article: dict) -> Optional[dict]:
+    """
+    Classify a demand article into a signal dict.
+    Used by main.py demand pipeline.
+    Returns None if not a CRE signal, else returns signal dict.
+    """
+    title = (article.get("title") or "")
+    text  = (article.get("text")  or "")
+    full  = f"{title} {text}"
+
+    result = score_signal(
+        company_name=article.get("company_hint") or "Unknown",
+        headline=title,
+        body=text,
+        source=article.get("source", ""),
+    )
+
+    if not result.get("is_cre"):
+        return None
+
+    return {
+        "signal_type":      result["signal_type"],
+        "urgency":          result["urgency"],
+        "confidence":       result["confidence_score"],
+        "confidence_score": result["confidence_score"],
+        "location":         result["location"],
+        "why_cre":          result["why_cre"],
+        "suggested_action": result["suggested_action"],
+        "funding_amount_cr":result.get("funding_amount_cr"),
+        "sqft_mentioned":   result.get("sqft_mentioned"),
+    }
+
+
+COMPANY_RE = re.compile(
+    r"\b([A-Z][A-Za-z0-9&]+(?:\s+[A-Z][A-Za-z0-9&]+){0,4})"
+    r"\s+(?:Ltd|Limited|Pvt|Private|Inc|Corp|LLP|Technologies|Solutions|Services|India|Group)\b"
+)
+
+def extract_company_names(text: str) -> list:
+    """Extract likely company names from text. Used by main.py."""
+    if not text:
+        return []
+    found = COMPANY_RE.findall(text)
+    # Dedupe preserving order
+    seen, unique = set(), []
+    for name in found:
+        key = name.lower().strip()
+        if key not in seen and len(name) > 3:
+            seen.add(key)
+            unique.append(name.strip())
+    return unique[:5]  # max 5 companies per article

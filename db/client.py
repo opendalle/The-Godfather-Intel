@@ -1,21 +1,219 @@
 """
-nexus/db.py — deal_matching engine PATCHED
-
-Root cause of 0 matches:
-The original engine was only enriching 2 distress events, and the matching
-query likely required exact city match + exact asset_class match.
-With 7 new supply events (mostly IBBI/NCLT) and 11 new demand signals
-(all stamped "India" as location, mixed types), there were no exact overlaps.
-
-Fixes:
-1. Location matching: exact match OR fuzzy (MMR = Mumbai = Thane = Navi Mumbai)
-2. Asset class: commercial ↔ office ↔ it_park all match; industrial ↔ warehouse match
-3. Score threshold: lowered to 40 for match creation (was probably 60+)
-4. Urgency bonus: CRITICAL demand + motivated supply → score boost
-5. Timing filter: demand signals detected within 30 days (was probably 7)
-6. Direct SQL-based matching (not Python-side loop) for performance
-7. Match score formula explained + tunable
+db/client.py — Nexus Asia Intel Supabase Client
 """
+from __future__ import annotations
+import os, re, logging, hashlib
+from datetime import datetime, timezone, timedelta
+from typing import Optional
+
+import requests
+
+logger = logging.getLogger("nexus.db")
+
+SUPABASE_URL      = os.environ.get("SUPABASE_URL", "").rstrip("/")
+SUPABASE_ANON_KEY = os.environ.get("SUPABASE_ANON_KEY", "")
+SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", SUPABASE_ANON_KEY)
+
+
+def _headers(service: bool = False) -> dict:
+    key = SUPABASE_SERVICE_KEY if service else SUPABASE_ANON_KEY
+    return {
+        "apikey": key,
+        "Authorization": f"Bearer {key}",
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal",
+    }
+
+
+def _url(table: str) -> str:
+    return f"{SUPABASE_URL}/rest/v1/{table}"
+
+
+# ─── Generic CRUD ─────────────────────────────────────────────────────────────
+
+def db_get(table: str, params: dict = None) -> list:
+    """Fetch rows from a table. params are query string filters."""
+    if not SUPABASE_URL:
+        return []
+    qs = "&".join(f"{k}={v}" for k, v in (params or {}).items())
+    url = f"{_url(table)}?{qs}" if qs else _url(table)
+    try:
+        r = requests.get(url, headers=_headers(), timeout=15)
+        if r.status_code == 200:
+            return r.json()
+        logger.warning("db_get %s: %d %s", table, r.status_code, r.text[:200])
+        return []
+    except Exception as e:
+        logger.error("db_get %s: %s", table, e)
+        return []
+
+
+def db_patch(table: str, data: dict, filters: dict) -> bool:
+    """Update rows matching filters."""
+    if not SUPABASE_URL:
+        return False
+    qs = "&".join(f"{k}=eq.{v}" for k, v in filters.items())
+    url = f"{_url(table)}?{qs}"
+    try:
+        r = requests.patch(url, json=data, headers=_headers(service=True), timeout=15)
+        return r.status_code in (200, 204)
+    except Exception as e:
+        logger.error("db_patch %s: %s", table, e)
+        return False
+
+
+def db_upsert(table: str, data: dict, on_conflict: str = None) -> bool:
+    """Upsert a single row."""
+    if not SUPABASE_URL:
+        return False
+    headers = {**_headers(service=True), "Prefer": "resolution=merge-duplicates,return=minimal"}
+    url = _url(table)
+    if on_conflict:
+        url += f"?on_conflict={on_conflict}"
+    try:
+        r = requests.post(url, json=data, headers=headers, timeout=15)
+        return r.status_code in (200, 201, 204)
+    except Exception as e:
+        logger.error("db_upsert %s: %s", table, e)
+        return False
+
+
+# ─── Company upsert ──────────────────────────────────────────────────────────
+
+def _normalize(name: str) -> str:
+    if not name:
+        return ""
+    n = re.sub(r"\b(ltd|limited|pvt|private|inc|corp|llp)\b", "", name, flags=re.IGNORECASE)
+    return re.sub(r"\s+", " ", n).strip().lower()
+
+
+def upsert_company(company_name: str) -> Optional[str]:
+    """Upsert company and return its ID. Silently ignores 409 conflicts."""
+    if not SUPABASE_URL or not company_name:
+        return None
+    normalized = _normalize(company_name)
+    if not normalized or len(normalized) < 2:
+        return None
+    data = {"name": company_name.strip(), "normalized_name": normalized}
+    headers = {**_headers(service=True), "Prefer": "resolution=merge-duplicates,return=representation"}
+    url = f"{_url('companies')}?on_conflict=normalized_name"
+    try:
+        r = requests.post(url, json=data, headers=headers, timeout=15)
+        if r.status_code in (200, 201):
+            rows = r.json()
+            if rows:
+                return rows[0].get("id")
+        elif r.status_code == 409:
+            # Already exists — silently ok
+            logger.debug("upsert_company %s: already exists", company_name)
+        else:
+            logger.warning("upsert_company %s: %d", company_name, r.status_code)
+    except Exception as e:
+        logger.warning("upsert_company %s: %s", company_name, e)
+    return None
+
+
+# ─── Deduplication ───────────────────────────────────────────────────────────
+
+def _uid(company: str, keyword: str, source: str) -> str:
+    raw = f"{company.lower().strip()}::{keyword.lower().strip()}::{source.lower().strip()}"
+    return hashlib.md5(raw.encode()).hexdigest()
+
+
+def is_duplicate_distress(company: str, keyword: str, source: str) -> bool:
+    """True if an identical distress event was inserted in the last 7 days."""
+    if not SUPABASE_URL:
+        return False
+    uid = _uid(company, keyword, source)
+    rows = db_get("distress_events", {
+        "uid":          f"eq.{uid}",
+        "select":       "id",
+        "limit":        "1",
+    })
+    return len(rows) > 0
+
+
+# ─── Insert functions ─────────────────────────────────────────────────────────
+
+def insert_distress_event(event: dict) -> bool:
+    """
+    Insert a distress event. Accepts DistressEvent.to_dict() or raw dict.
+    Returns True on success.
+    """
+    if not SUPABASE_URL:
+        return True  # dry-run: pretend success
+
+    company  = event.get("company_name", "Unknown")
+    keyword  = event.get("signal_keyword", "")
+    source   = event.get("source", "")
+
+    # Auto-generate uid for dedup
+    if not event.get("uid"):
+        event = {**event, "uid": _uid(company, keyword, source)}
+
+    # Upsert company record
+    upsert_company(company)
+
+    headers = {**_headers(service=True), "Prefer": "resolution=ignore-duplicates,return=minimal"}
+    url = f"{_url('distress_events')}?on_conflict=uid"
+
+    try:
+        r = requests.post(url, json=event, headers=headers, timeout=15)
+        if r.status_code in (200, 201, 204):
+            return True
+        logger.warning("insert_distress_event %s: %d %s", company, r.status_code, r.text[:200])
+        return False
+    except Exception as e:
+        logger.error("insert_distress_event %s: %s", company, e)
+        return False
+
+
+def insert_demand_signal(company_name: str, signal: dict) -> bool:
+    """
+    Insert a demand signal. signal is from classify_demand_signal().
+    Returns True on success.
+    """
+    if not SUPABASE_URL:
+        return True  # dry-run
+
+    upsert_company(company_name)
+
+    row = {
+        "company_name":     company_name,
+        "signal_type":      signal.get("signal_type", "SIGNAL"),
+        "confidence_score": signal.get("confidence") or signal.get("confidence_score") or 50,
+        "urgency":          signal.get("urgency", "MEDIUM"),
+        "location":         signal.get("location", "India"),
+        "sqft_mentioned":   signal.get("sqft_mentioned"),
+        "funding_amount_cr":signal.get("funding_amount_cr"),
+        "why_cre":          signal.get("why_cre", ""),
+        "suggested_action": signal.get("suggested_action", ""),
+        "summary":          (signal.get("summary") or "")[:500],
+        "data_source":      signal.get("data_source", "RSS"),
+        "source_url":       signal.get("source_url", ""),
+        "detected_at":      datetime.now(timezone.utc).isoformat(),
+        "is_duplicate":     False,
+    }
+
+    # Generate uid for dedup
+    uid_raw = f"{company_name.lower()}::{signal.get('signal_type','')}::{signal.get('source_url','')}"
+    row["uid"] = hashlib.md5(uid_raw.encode()).hexdigest()
+
+    headers = {**_headers(service=True), "Prefer": "resolution=ignore-duplicates,return=minimal"}
+    url = f"{_url('demand_signals')}?on_conflict=uid"
+
+    try:
+        r = requests.post(url, json=row, headers=headers, timeout=15)
+        if r.status_code in (200, 201, 204):
+            return True
+        logger.warning("insert_demand_signal %s: %d %s", company_name, r.status_code, r.text[:200])
+        return False
+    except Exception as e:
+        logger.error("insert_demand_signal %s: %s", company_name, e)
+        return False
+
+
+
 
 import logging
 from datetime import datetime, timezone, timedelta
@@ -387,7 +585,7 @@ RETURNING supply_company, demand_company, match_score;
 # PYTHON FALLBACK MATCHING (for when RPC not available)
 # ──────────────────────────────────────────────────────────────────────────────
 
-def run_deal_matching_python(supabase_client) -> int:
+def run_deal_matching_python(supabase_client=None) -> int:
     """
     Python-side deal matching. Fetches recent supply + demand from Supabase,
     scores all pairs, inserts matches.
@@ -474,3 +672,26 @@ def run_deal_matching_python(supabase_client) -> int:
 
     logger.info("Deal matching: %d matches created/updated", matches_created)
     return matches_created
+
+
+def run_deal_matching() -> int:
+    """
+    Wrapper called by enrichment/engine.py with no arguments.
+    Builds its own Supabase client using environment variables.
+    """
+    import os
+    from supabase import create_client
+
+    url = os.environ.get("SUPABASE_URL", "").rstrip("/")
+    key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or os.environ.get("SUPABASE_ANON_KEY", "")
+
+    if not url or not key:
+        logger.warning("run_deal_matching: SUPABASE_URL or key not set — skipping")
+        return 0
+
+    try:
+        client = create_client(url, key)
+        return run_deal_matching_python(client)
+    except Exception as e:
+        logger.error("run_deal_matching: failed to create client: %s", e)
+        return 0

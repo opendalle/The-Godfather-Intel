@@ -738,6 +738,10 @@ header {
   </div>
 </header>
 
+<div style="background:#1a0a00;border-bottom:1px solid rgba(232,37,58,0.3);padding:6px 28px;display:flex;align-items:center;gap:10px">
+  <span style="font-family:'Space Mono',monospace;font-size:8px;letter-spacing:0.2em;color:#e8253a;font-weight:700">⚠ LIVE DATA ONLY</span>
+  <span style="font-family:'Space Mono',monospace;font-size:9px;color:#805030">All mock data removed. Dashboard shows only crawled signals from Supabase. Deal Matches will be 0 until the enrichment engine generates real matches.</span>
+</div>
 <div class="stat-row">
   <div class="stat s-red">
     <div class="stat-lbl">Critical Distress</div>
@@ -980,137 +984,62 @@ async function sbGet(table, params = {}) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// MOCK DATA (fallback when tables are empty)
-// ═══════════════════════════════════════════════════════════════════
-function getMockSupply() {
-  return [
-    { id:'1', company_name:'Unitech Corporate Parks Ltd', signal_category:'cirp', source:'IBBI_NCLT', headline:'NCLT admits CIRP application against Unitech Corporate Parks — resolution professional appointed', deal_score:88, severity:'critical', asset_class:'commercial', location:'Gurgaon', is_mmr:false, channel:'regulatory', price_crore:320, url:'#', detected_at: new Date(Date.now()-3600000).toISOString(), metadata:{} },
-    { id:'2', company_name:'Peninsula Land Ltd', signal_category:'sarfaesi', source:'PSU_Banks', headline:'SBI issues Section 13(4) notice — physical possession of commercial premises at BKC Mumbai to be taken', deal_score:92, severity:'critical', asset_class:'commercial', location:'BKC', is_mmr:true, channel:'sarfaesi', price_crore:145, url:'#', detected_at: new Date(Date.now()-7200000).toISOString(), metadata:{bank:'State Bank of India'} },
-    { id:'3', company_name:'Hubtown Ltd', signal_category:'auction', source:'IBAPI', headline:'E-auction notice: Grade A office floor, Andheri East — Reserve price ₹38Cr, auction date March 28', deal_score:79, severity:'high', asset_class:'commercial', location:'Andheri', is_mmr:true, channel:'bank_auction', price_crore:38, url:'#', detected_at: new Date(Date.now()-10800000).toISOString(), metadata:{bank:'Bank of Baroda', auction_date:'28 Mar 2026'} },
-    { id:'4', company_name:'Orbit Corporation', signal_category:'drt', source:'DRT_SARFAESI', headline:'DRT Mumbai: OA filed by consortium of lenders — commercial property Worli, recovery ₹89Cr sought', deal_score:74, severity:'high', asset_class:'commercial', location:'Worli', is_mmr:true, channel:'drt', price_crore:89, url:'#', detected_at: new Date(Date.now()-14400000).toISOString(), metadata:{} },
-    { id:'5', company_name:'Amtek Auto Ltd', signal_category:'liquidation', source:'IBBI_NCLT', headline:'NCLT orders liquidation of Amtek Auto — industrial assets including 2 lakh sqft factory premises to be sold', deal_score:65, severity:'critical', asset_class:'industrial', location:'Pune', is_mmr:false, channel:'regulatory', price_crore:210, url:'#', detected_at: new Date(Date.now()-18000000).toISOString(), metadata:{} },
-    { id:'6', company_name:'Edelweiss ARC Portfolio', signal_category:'arc_portfolio', source:'NARCL_ARC', headline:'Edelweiss ARC offloads 3 commercial office assets in Mumbai — Grade B+ Malad and Goregaon', deal_score:71, severity:'high', asset_class:'commercial', location:'Malad', is_mmr:true, channel:'arc_portfolio', price_crore:55, url:'#', detected_at: new Date(Date.now()-21600000).toISOString(), metadata:{arc:'Edelweiss ARC'} },
-    { id:'7', company_name:'HDFC Asset Mgmt', signal_category:'default', source:'Financial_Media', headline:'Multiple NPA accounts in Mumbai real estate sector: ET reports fresh SARFAESI notices filed by PSU banks', deal_score:55, severity:'medium', asset_class:'commercial', location:'Mumbai', is_mmr:true, channel:'media', price_crore:null, url:'#', detected_at: new Date(Date.now()-28800000).toISOString(), metadata:{} },
-    { id:'8', company_name:'Alok Industries Ltd', signal_category:'cirp', source:'IBBI_NCLT', headline:'Resolution plan for Alok Industries approved — ₹5000Cr commercial asset package to be monetised', deal_score:82, severity:'critical', asset_class:'industrial', location:'Mumbai', is_mmr:true, channel:'regulatory', price_crore:5000, url:'#', detected_at: new Date(Date.now()-32400000).toISOString(), metadata:{} },
-  ];
-}
-
-function getMockDemand() {
-  return [
-    { id:'d1', company_name:'Zepto', signal_type:'LEASE', confidence_score:88, urgency:'CRITICAL', location:'Mumbai', why_cre:'Signed lease for 45,000 sqft warehouse-office hybrid in Malad West — rapid expansion to 1000-member ops team', suggested_action:'Immediate: shortlist adjacent Grade A spaces for overflow within 90 days', data_source:'BSE_FILING', detected_at: new Date(Date.now()-1800000).toISOString() },
-    { id:'d2', company_name:'JPMorgan Chase India', signal_type:'EXPAND', confidence_score:85, urgency:'HIGH', location:'BKC', sqft_mentioned:120000, why_cre:'Series of BSE filings confirm 1.2L sqft expansion in BKC — GCC headcount doubling to 8000 by FY26', suggested_action:'Introduce pre-leased Grade A options at BKC or Worli with existing infrastructure', data_source:'BSE_FILING', detected_at: new Date(Date.now()-3600000).toISOString() },
-    { id:'d3', company_name:'Meesho', signal_type:'FUNDING', confidence_score:72, urgency:'HIGH', location:'Bengaluru', funding_amount_cr:620, why_cre:'Series F — ₹620Cr raised, aggressive headcount plan for 2026, Bengaluru ORR primary market', suggested_action:'Send CRE intro deck + ORR Grade A availability — Series F timing ideal for 18-month office planning', data_source:'RSS_NEWS', detected_at: new Date(Date.now()-7200000).toISOString() },
-    { id:'d4', company_name:'Accenture India', signal_type:'HIRING', confidence_score:68, urgency:'HIGH', location:'Bengaluru', sqft_mentioned:null, why_cre:'LinkedIn surge: 250+ open roles in Bengaluru — Whitefield and Electronic City focus, signals facility expansion within 12 months', suggested_action:'Route to GCC/IT park team — connect with Whitefield Grade A landlords', data_source:'LINKEDIN_JOBS', detected_at: new Date(Date.now()-10800000).toISOString() },
-    { id:'d5', company_name:'Zerodha Financial Services', signal_type:'OFFICE', confidence_score:81, urgency:'HIGH', location:'Bengaluru', sqft_mentioned:35000, why_cre:'New registered office setup — MCA filing confirms 35,000 sqft new tech campus in HSR Layout', suggested_action:'Confirm if they need additional capacity — high-confidence, active requirement', data_source:'MCA_INCORPORATION', detected_at: new Date(Date.now()-14400000).toISOString() },
-    { id:'d6', company_name:'PayZapp (HDFC Bank subsidiary)', signal_type:'RELOCATE', confidence_score:74, urgency:'MEDIUM', location:'Mumbai', why_cre:'Subsidiary separating from parent bank operations — needs independent registered and operational office in MMR', suggested_action:'Identify Powai or Goregaon Grade B+ options — 10,000–20,000 sqft range', data_source:'BSE_FILING', detected_at: new Date(Date.now()-18000000).toISOString() },
-    { id:'d7', company_name:'BlackRock India GCC', signal_type:'NEW_ENTRANT', confidence_score:79, urgency:'HIGH', location:'Mumbai', why_cre:'New subsidiary incorporated in Maharashtra — global fund manager setting up India GCC, first office requirement', suggested_action:'Priority outreach — first office for global firm, BKC or Lower Parel preferred by financial institutions', data_source:'MCA_INCORPORATION', detected_at: new Date(Date.now()-21600000).toISOString() },
-  ];
-}
-
-function getMockMatches() {
-  return [
-    { match_id:'m1', match_score:87, match_reason:'MMR location overlap, commercial asset class, HIGH urgency demand', status:'new', broker_action:'Connect Peninsula Land BKC asset with JPMorgan GCC expansion — ₹145Cr distressed Grade A vs 1.2L sqft demand', supply_company:'Peninsula Land Ltd', asset_class:'commercial', supply_location:'BKC', price_crore:145, deal_score:92, channel:'sarfaesi', supply_headline:'SBI Section 13(4) notice — BKC commercial premises', demand_company:'JPMorgan Chase India', signal_type:'EXPAND', urgency:'HIGH', confidence_score:85, demand_location:'BKC', sqft_mentioned:120000, why_cre:'GCC headcount doubling to 8000 by FY26', suggested_action:'Introduce pre-leased Grade A options at BKC', matched_at: new Date().toISOString() },
-    { match_id:'m2', match_score:74, match_reason:'Mumbai location, commercial + LEASE demand, motivated seller', status:'new', broker_action:'Hubtown Andheri auction vs Zepto ops expansion — floor-level distressed unit vs immediate office+warehouse need', supply_company:'Hubtown Ltd', asset_class:'commercial', supply_location:'Andheri', price_crore:38, deal_score:79, channel:'bank_auction', supply_headline:'E-auction: Grade A office, Andheri East — ₹38Cr reserve', demand_company:'Zepto', signal_type:'LEASE', urgency:'CRITICAL', confidence_score:88, demand_location:'Mumbai', sqft_mentioned:45000, why_cre:'Rapid expansion, 1000-member ops team', suggested_action:'Immediate shortlist of adjacent Grade A spaces', matched_at: new Date(Date.now()-3600000).toISOString() },
-    { match_id:'m3', match_score:68, match_reason:'MMR overlap, ARC motivated seller, funding-stage company', status:'reviewed', broker_action:'Edelweiss ARC Malad units vs PayZapp relocation — distressed Grade B+ vs subsidiary separation requirement', supply_company:'Edelweiss ARC Portfolio', asset_class:'commercial', supply_location:'Malad', price_crore:55, deal_score:71, channel:'arc_portfolio', supply_headline:'Edelweiss ARC: 3 commercial office assets, Malad + Goregaon', demand_company:'PayZapp (HDFC Bank subsidiary)', signal_type:'RELOCATE', urgency:'MEDIUM', confidence_score:74, demand_location:'Mumbai', sqft_mentioned:null, why_cre:'Independent office needed post-separation', suggested_action:'Powai or Goregaon Grade B+ 10-20k sqft', matched_at: new Date(Date.now()-7200000).toISOString() },
-  ];
-}
-
-function getMockCapRates() {
-  return [
-    {micro_market:'BKC',            asset_class:'grade_a_office', cap_rate_pct:7.26, avg_rent_psf:310, avg_price_psf:47000},
-    {micro_market:'Lower Parel',    asset_class:'grade_a_office', cap_rate_pct:7.81, avg_rent_psf:255, avg_price_psf:36000},
-    {micro_market:'Worli',          asset_class:'grade_a_office', cap_rate_pct:7.45, avg_rent_psf:240, avg_price_psf:35500},
-    {micro_market:'Andheri East',   asset_class:'grade_a_office', cap_rate_pct:7.92, avg_rent_psf:145, avg_price_psf:20200},
-    {micro_market:'Powai',          asset_class:'grade_a_office', cap_rate_pct:7.55, avg_rent_psf:125, avg_price_psf:18200},
-    {micro_market:'Malad',          asset_class:'grade_a_office', cap_rate_pct:7.71, avg_rent_psf:112, avg_price_psf:16000},
-    {micro_market:'Goregaon',       asset_class:'grade_a_office', cap_rate_pct:7.83, avg_rent_psf:115, avg_price_psf:16200},
-    {micro_market:'Vikhroli',       asset_class:'grade_b_office', cap_rate_pct:8.31, avg_rent_psf:98,  avg_price_psf:12900},
-    {micro_market:'Thane',          asset_class:'grade_a_office', cap_rate_pct:8.52, avg_rent_psf:82,  avg_price_psf:10600},
-    {micro_market:'Navi Mumbai',    asset_class:'grade_a_office', cap_rate_pct:8.67, avg_rent_psf:76,  avg_price_psf:9650},
-    {micro_market:'Airoli',         asset_class:'grade_b_office', cap_rate_pct:9.12, avg_rent_psf:70,  avg_price_psf:8450},
-    {micro_market:'Belapur',        asset_class:'grade_b_office', cap_rate_pct:9.04, avg_rent_psf:65,  avg_price_psf:7900},
-    {micro_market:'Kharghar',       asset_class:'grade_b_office', cap_rate_pct:9.45, avg_rent_psf:60,  avg_price_psf:7000},
-    {micro_market:'Pune Hinjewadi', asset_class:'grade_a_office', cap_rate_pct:8.42, avg_rent_psf:82,  avg_price_psf:10700},
-    {micro_market:'Hyderabad HiTec',asset_class:'grade_a_office', cap_rate_pct:8.15, avg_rent_psf:88,  avg_price_psf:11900},
-    {micro_market:'Bengaluru ORR',  asset_class:'grade_a_office', cap_rate_pct:8.20, avg_rent_psf:92,  avg_price_psf:12320},
-    {micro_market:'Bengaluru CBD',  asset_class:'grade_a_office', cap_rate_pct:7.61, avg_rent_psf:115, avg_price_psf:16600},
-    {micro_market:'Pune CBD',       asset_class:'grade_a_office', cap_rate_pct:7.95, avg_rent_psf:105, avg_price_psf:14550},
-  ];
-}
-
-function getMockPreleased() {
-  return [
-    {id:'p1', name:'Lotus Corporate Park', micro_market:'Goregaon', city:'Mumbai', asset_class:'grade_a_office', total_area_sqft:210000, occupancy_pct:92, tenant_name:'Cognizant Technology Solutions', tenant_category:'blue_chip', cap_rate_pct:7.83, asking_price_crore:340, meets_investor_threshold:false, urgency_level:'motivated', rent_per_sqft:115, lease_expiry_date:'2028-03-31'},
-    {id:'p2', name:'Mindspace IT Park B3', micro_market:'Airoli', city:'Mumbai', asset_class:'it_park', total_area_sqft:180000, occupancy_pct:100, tenant_name:'TCS + Accenture (strata)', tenant_category:'blue_chip', cap_rate_pct:9.12, asking_price_crore:152, meets_investor_threshold:true, urgency_level:'distressed', rent_per_sqft:70, lease_expiry_date:'2027-09-30'},
-    {id:'p3', name:'Reliable Tech Park', micro_market:'Thane', city:'Mumbai', asset_class:'grade_a_office', total_area_sqft:95000, occupancy_pct:100, tenant_name:'HDFC Life Insurance', tenant_category:'blue_chip', cap_rate_pct:8.52, asking_price_crore:101, meets_investor_threshold:true, urgency_level:'motivated', rent_per_sqft:82, lease_expiry_date:'2027-06-30'},
-    {id:'p4', name:'Nesco IT Park Block 4', micro_market:'Goregaon', city:'Mumbai', asset_class:'it_park', total_area_sqft:145000, occupancy_pct:95, tenant_name:'Wipro + HCL (multi-tenant)', tenant_category:'blue_chip', cap_rate_pct:7.83, asking_price_crore:235, meets_investor_threshold:false, urgency_level:'normal', rent_per_sqft:115, lease_expiry_date:'2029-12-31'},
-    {id:'p5', name:'Manyata Tech Park SEZ', micro_market:'Bengaluru', city:'Bengaluru', asset_class:'it_park', total_area_sqft:320000, occupancy_pct:98, tenant_name:'IBM India + Flipkart', tenant_category:'blue_chip', cap_rate_pct:8.20, asking_price_crore:510, meets_investor_threshold:false, urgency_level:'normal', rent_per_sqft:92, lease_expiry_date:'2030-06-30'},
-    {id:'p6', name:'Vashi Infotech Park', micro_market:'Navi Mumbai', city:'Mumbai', asset_class:'grade_b_office', total_area_sqft:72000, occupancy_pct:100, tenant_name:'ICICI Lombard (GI)', tenant_category:'institutional', cap_rate_pct:8.67, asking_price_crore:69, meets_investor_threshold:true, urgency_level:'motivated', rent_per_sqft:76, lease_expiry_date:'2026-09-30'},
-  ];
-}
-
-function getMockInvestors() {
-  return [
-    {investor_name:'London Investor Group', min_deal_size_cr:50, max_deal_size_cr:500, min_cap_rate_pct:8.5, preferred_cities:['Mumbai','Pune']},
-    {investor_name:'Blackstone India RE', min_deal_size_cr:500, max_deal_size_cr:5000, min_cap_rate_pct:7.0, preferred_cities:['Mumbai','Bengaluru']},
-    {investor_name:'Kotak Realty Fund', min_deal_size_cr:50, max_deal_size_cr:300, min_cap_rate_pct:8.0, preferred_cities:['Mumbai','Pune']},
-    {investor_name:'GIC Singapore', min_deal_size_cr:200, max_deal_size_cr:2000, min_cap_rate_pct:7.5, preferred_cities:['Mumbai','Bengaluru']},
-  ];
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// DATA LOADING
+// DATA LOADING — LIVE ONLY. NO MOCK DATA. EVER.
 // ═══════════════════════════════════════════════════════════════════
 async function loadAll() {
   const connected = !!(CFG.url && CFG.key);
-  document.getElementById('supabaseStatus').textContent = connected ? '⬤ live' : '⬤ demo mode';
-  document.getElementById('supabaseStatus').style.color = connected ? 'var(--green)' : 'var(--amber)';
+  if (!connected) {
+    document.getElementById('supabaseStatus').textContent = '⬤ no connection';
+    document.getElementById('supabaseStatus').style.color = 'var(--red)';
+    showNoConnection();
+    return;
+  }
+
+  document.getElementById('supabaseStatus').textContent = '⬤ loading...';
+  document.getElementById('supabaseStatus').style.color = 'var(--amber)';
 
   try {
-    if (connected) {
-      const results = await Promise.all([
-        sbGet('distress_events', { select:'id,company_name,signal_category,source,url,headline,deal_score,severity,asset_class,location,is_mmr,channel,price_crore,detected_at,metadata', 'is_duplicate':'eq.false', order:'deal_score.desc', limit:'300' }),
-        sbGet('demand_signals',  { select:'id,company_name,signal_type,confidence_score,urgency,location,sqft_mentioned,funding_amount_cr,why_cre,suggested_action,summary,data_source,detected_at', 'is_duplicate':'eq.false', order:'confidence_score.desc', limit:'200' }),
-        sbGet('v_deal_matches_full', { order:'match_score.desc', limit:'100' }),
-        sbGet('pre_leased_assets', { select:'id,name,micro_market,city,asset_class,total_area_sqft,occupancy_pct,tenant_name,tenant_category,cap_rate_pct,asking_price_crore,meets_investor_threshold,urgency_level,rent_per_sqft,lease_expiry_date', order:'cap_rate_pct.desc', limit:'100' }),
-        sbGet('cap_rate_snapshots', { order:'snapshot_date.desc,micro_market.asc', limit:'200' }),
-        sbGet('investor_mandates', { select:'investor_name,min_deal_size_cr,max_deal_size_cr,min_cap_rate_pct,preferred_cities', 'is_active':'eq.true', limit:'20' }),
-      ]);
+    const results = await Promise.all([
+      sbGet('distress_events', { select:'id,company_name,signal_category,source,url,headline,deal_score,severity,asset_class,location,is_mmr,channel,price_crore,detected_at,metadata', 'is_duplicate':'eq.false', order:'deal_score.desc', limit:'300' }),
+      sbGet('demand_signals',  { select:'id,company_name,signal_type,confidence_score,urgency,location,sqft_mentioned,funding_amount_cr,why_cre,suggested_action,summary,data_source,detected_at', 'is_duplicate':'eq.false', order:'confidence_score.desc', limit:'200' }),
+      sbGet('v_deal_matches_full', { order:'match_score.desc', limit:'100' }),
+      sbGet('pre_leased_assets', { select:'id,name,micro_market,city,asset_class,total_area_sqft,occupancy_pct,tenant_name,tenant_category,cap_rate_pct,asking_price_crore,meets_investor_threshold,urgency_level,rent_per_sqft,lease_expiry_date', order:'cap_rate_pct.desc', limit:'100' }),
+      sbGet('cap_rate_snapshots', { order:'snapshot_date.desc,micro_market.asc', limit:'200' }),
+      sbGet('investor_mandates', { select:'investor_name,min_deal_size_cr,max_deal_size_cr,min_cap_rate_pct,preferred_cities', 'is_active':'eq.true', limit:'20' }),
+    ]);
 
-      [supplyData, demandData, matchData, plaData, capData, investors] = results;
-
-      // Fall back to mock data for any empty tables
-      if (!supplyData  || supplyData.length  === 0) supplyData  = getMockSupply();
-      if (!demandData  || demandData.length  === 0) demandData  = getMockDemand();
-      if (!matchData   || matchData.length   === 0) matchData   = getMockMatches();
-      if (!plaData     || plaData.length     === 0) plaData     = getMockPreleased();
-      if (!capData     || capData.length     === 0) capData     = getMockCapRates();
-      if (!investors   || investors.length   === 0) investors   = getMockInvestors();
-
-    } else {
-      supplyData = getMockSupply();
-      demandData = getMockDemand();
-      matchData  = getMockMatches();
-      plaData    = getMockPreleased();
-      capData    = getMockCapRates();
-      investors  = getMockInvestors();
-    }
+    [supplyData, demandData, matchData, plaData, capData, investors] = results.map(r => Array.isArray(r) ? r : []);
 
     renderAll();
     updateStats();
     updateTicker();
+    document.getElementById('supabaseStatus').textContent = '⬤ live';
+    document.getElementById('supabaseStatus').style.color = 'var(--green)';
     document.getElementById('lastSync').textContent = 'SYNCED ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'});
-    if (!connected) document.getElementById('lastSync').textContent += ' (DEMO)';
 
   } catch(e) {
     console.error('Load failed:', e);
-    supplyData = getMockSupply(); demandData = getMockDemand();
-    matchData = getMockMatches(); plaData = getMockPreleased();
-    capData = getMockCapRates(); investors = getMockInvestors();
-    renderAll(); updateStats(); updateTicker();
-    document.getElementById('supabaseStatus').textContent = '⬤ error — demo mode';
-    document.getElementById('supabaseStatus').style.color = 'var(--amber)';
+    document.getElementById('supabaseStatus').textContent = '⬤ error — check console';
+    document.getElementById('supabaseStatus').style.color = 'var(--red)';
+    document.getElementById('lastSync').textContent = 'SYNC FAILED';
+    showLoadError(e);
   }
+}
+
+function showNoConnection() {
+  const msg = '<div class="empty" style="color:var(--red)">NO SUPABASE CONNECTION CONFIGURED</div>';
+  ['supplyFeed','demandFeed','matchFeed','plaGrid','capGrid'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = msg;
+  });
+}
+
+function showLoadError(e) {
+  const msg = `<div class="empty" style="color:var(--red)">LOAD ERROR — ${(e.message||'unknown').slice(0,80)}</div>`;
+  ['supplyFeed','demandFeed','matchFeed','plaGrid','capGrid'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = msg;
+  });
 }
 
 function renderAll() {
@@ -1163,7 +1092,7 @@ function renderSupply() {
     if (search && !e.company_name?.toLowerCase().includes(search) && !e.location?.toLowerCase().includes(search) && !(e.source||'').toLowerCase().includes(search)) return false;
     return true;
   });
-  if (!data.length) { document.getElementById('supplyFeed').innerHTML = '<div class="empty">NO SIGNALS MATCH FILTERS</div>'; return; }
+  if (!data.length) { document.getElementById('supplyFeed').innerHTML = '<div class="empty">NO LIVE SUPPLY SIGNALS IN DATABASE — CHECK PIPELINE</div>'; return; }
 
   let html = '';
   data.forEach(e => {
@@ -1227,7 +1156,7 @@ function renderDemand() {
     if (search && !d.company_name?.toLowerCase().includes(search) && !d.location?.toLowerCase().includes(search) && !(d.data_source||'').toLowerCase().includes(search)) return false;
     return true;
   });
-  if (!data.length) { document.getElementById('demandFeed').innerHTML = '<div class="empty">NO DEMAND SIGNALS MATCH FILTERS</div>'; return; }
+  if (!data.length) { document.getElementById('demandFeed').innerHTML = '<div class="empty">NO LIVE DEMAND SIGNALS IN DATABASE — CHECK PIPELINE</div>'; return; }
 
   let html = '';
   data.forEach(d => {
@@ -1282,7 +1211,7 @@ function renderMatches() {
     if (search && !m.supply_company?.toLowerCase().includes(search) && !m.demand_company?.toLowerCase().includes(search)) return false;
     return true;
   });
-  if (!data.length) { document.getElementById('matchFeed').innerHTML = '<div class="empty">NO DEAL MATCHES — RUN ENRICHMENT PIPELINE TO GENERATE</div>'; return; }
+  if (!data.length) { document.getElementById('matchFeed').innerHTML = '<div class="empty">NO DEAL MATCHES IN DATABASE — DEAL MATCHING ENGINE PRODUCED 0 MATCHES THIS RUN</div>'; return; }
 
   let html = '';
   data.forEach(m => {
@@ -1340,7 +1269,7 @@ function renderPreleased() {
     if (showThresh && !p.meets_investor_threshold) return false;
     return true;
   });
-  if (!data.length) { document.getElementById('plaGrid').innerHTML = '<div class="empty" style="grid-column:1/-1">NO PRE-LEASED ASSETS MATCH FILTERS</div>'; return; }
+  if (!data.length) { document.getElementById('plaGrid').innerHTML = '<div class="empty" style="grid-column:1/-1">NO PRE-LEASED ASSETS IN DATABASE</div>'; return; }
 
   let html = '';
   data.forEach(p => {
@@ -1396,7 +1325,7 @@ function renderCapRates() {
   if (capF === 'above') data = data.filter(c => (c.cap_rate_pct||0) >= 8.5);
   data.sort((a,b) => (b.cap_rate_pct||0) - (a.cap_rate_pct||0));
 
-  if (!data.length) { document.getElementById('capGrid').innerHTML = '<div class="empty" style="grid-column:1/-1">NO CAP RATE DATA</div>'; return; }
+  if (!data.length) { document.getElementById('capGrid').innerHTML = '<div class="empty" style="grid-column:1/-1">NO CAP RATE DATA IN DATABASE</div>'; return; }
 
   let html = '';
   data.forEach(c => {

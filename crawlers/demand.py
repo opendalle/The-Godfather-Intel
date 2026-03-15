@@ -29,6 +29,117 @@ from typing import List, Optional
 
 from nlp.engine import score_signal, is_ipo_spam
 
+from crawlers.base import BaseCrawler, DemandArticle
+
+import calendar
+
+HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/122.0.0.0 Safari/537.36"
+    ),
+    "Accept": "application/rss+xml, application/xml, text/xml, */*;q=0.8",
+}
+
+DEMAND_FEEDS = [
+    ("https://entrackr.com/rss/", "RSS_NEWS", "demand"),
+    ("https://www.vccircle.com/feed/", "RSS_NEWS", "demand"),
+    ("https://yourstory.com/feed/", "RSS_NEWS", "demand"),
+    ("https://inc42.com/feed/", "RSS_NEWS", "demand"),
+    ("https://techcrunch.com/feed/", "RSS_NEWS", "demand"),
+    ("https://www.thehindubusinessline.com/feeder/default.rss", "RSS_NEWS", "demand"),
+    ("https://www.financialexpress.com/feed/", "RSS_NEWS", "demand"),
+    ("https://economictimes.indiatimes.com/industry/rss.cms", "RSS_NEWS", "demand"),
+    ("https://economictimes.indiatimes.com/tech/technology/rss.cms", "RSS_NEWS", "demand"),
+    ("https://realty.economictimes.indiatimes.com/rss/topstories", "RSS_NEWS", "demand"),
+    ("https://www.nasscom.in/rss.xml", "RSS_NEWS", "demand"),
+]
+
+SUPPLY_FEEDS = [
+    ("https://www.barandbench.com/feed", "DRT_SARFAESI", "supply"),
+    ("https://www.livelaw.in/feed", "DRT_SARFAESI", "supply"),
+    ("https://www.cyrilamarchandblogs.com/feed/", "DRT_SARFAESI", "supply"),
+    ("https://jsalaw.com/feed/", "DRT_SARFAESI", "supply"),
+    ("https://www.thehindubusinessline.com/money-and-banking/rss.cms", "Financial_Media", "supply"),
+    ("https://economictimes.indiatimes.com/wealth/borrow/rss.cms", "Financial_Media", "supply"),
+    ("https://www.moneycontrol.com/rss/latestnews.xml", "Financial_Media", "supply"),
+]
+
+ALL_FEEDS = DEMAND_FEEDS + SUPPLY_FEEDS
+
+MCA_NEW_COMPANIES_URL = "https://www.mca.gov.in/mcafoportal/viewRecentFilings.do"
+MCA_RSS = "https://www.mca.gov.in/MinistryV2/rssfeed.html"
+
+STATE_CITY_MAP = {
+    "MH": "Mumbai", "KA": "Bengaluru", "TG": "Hyderabad",
+    "AP": "Hyderabad", "DL": "NCR", "HR": "NCR", "UP": "NCR",
+    "TN": "Chennai", "GJ": "Ahmedabad", "WB": "Kolkata",
+}
+
+HIGH_SIGNAL_NAMES = re.compile(
+    r"(?:technology|technologies|tech|digital|analytics|intelligence|"
+    r"software|solutions|systems|data|cloud|ai\b|artificial\s+intelligence|"
+    r"fintech|edtech|healthtech|insurtech|consulting|advisory|services|"
+    r"research|innovation|labs?|studio|global|international|"
+    r"india\s+(?:centre|center|hub|operations)|gcc|capability\s+centre|"
+    r"financial\s+services|payments?|lending|banking|"
+    r"pharmaceuticals?|biotech|media|content|gaming|logistics)",
+    re.IGNORECASE,
+)
+
+LOW_SIGNAL_NAMES = re.compile(
+    r"(?:realty|realtors?|developers?|builders?|constructions?|"
+    r"properties|estates?|infra(?:structure)?|"
+    r"trading|traders?|exports?|imports?|merchants?|agri)",
+    re.IGNORECASE,
+)
+
+FOREIGN_PARENT = re.compile(
+    r"(?:india\s+(?:pvt|private|ltd|limited)|\(india\)|india\s+operations?)",
+    re.IGNORECASE,
+)
+
+def _parse_feed_date(entry) -> "datetime":
+    for attr in ("published_parsed", "updated_parsed"):
+        t = getattr(entry, attr, None)
+        if t:
+            try:
+                ts = calendar.timegm(t)
+                from datetime import datetime, timezone
+                return datetime.fromtimestamp(ts, tz=timezone.utc)
+            except Exception:
+                pass
+    from datetime import datetime, timezone
+    return datetime.now(timezone.utc)
+
+def _extract_company_from_title(title: str) -> str:
+    import re
+    m = re.match(
+        r"^([A-Z][A-Za-z0-9\s&'.,-]{2,50}?)\s+(?:raises?|secures?|closes?|announces?|opens?|"
+        r"launches?|expands?|acquires?|signs?|inks?|sets?\s+up|enters?|unveils?|plans?)",
+        title.strip()
+    )
+    if m:
+        name = m.group(1).strip().rstrip(",.-")
+        if 3 < len(name) < 60:
+            return name
+    words = title.split()
+    caps = []
+    for w in words[:8]:
+        if w and (w[0].isupper() or w in ("&", "and")):
+            caps.append(w)
+        else:
+            break
+    if caps:
+        name = " ".join(caps).strip()
+        if 3 < len(name) < 60:
+            return name
+    return title[:50]
+
+logger_rss = logging.getLogger("crawler.RSS_NEWS")
+
+
 logger_bse = logging.getLogger("crawler.BSE_FILING")
 logger_nse = logging.getLogger("crawler.NSE_FILING")
 
@@ -215,6 +326,10 @@ class BSEFilingCrawler:
 
         logger_bse.info("BSE: %d CRE filings (from %d raw)", len(signals), len(raw))
         return signals
+
+    def crawl(self) -> list:
+        """Alias for main.py compatibility."""
+        return self.run()
 
     def _fetch_filings(self) -> list:
         """
@@ -409,6 +524,10 @@ class NSEFilingCrawler:
         logger_nse.info("NSE: %d CRE filings (from %d raw)", len(signals), len(raw))
         return signals
 
+    def crawl(self) -> list:
+        """Alias for main.py compatibility."""
+        return self.run()
+
     def _fetch_announcements(self) -> list:
         """
         Fetch NSE corporate announcements. Returns list of announcement dicts.
@@ -449,9 +568,9 @@ class NSEFilingCrawler:
 
 
 # ═══════════════════════════════════════════════════════════════
-# RSS / FINANCIAL MEDIA CRAWLERS (was rss_crawler_patch.py)
+# RSS / FINANCIAL MEDIA CRAWLERS
 # ═══════════════════════════════════════════════════════════════
-:
+class RSSNewsCrawler(BaseCrawler):
     """
     Crawls all RSS/Atom feeds. Applies CRE intelligence scoring.
     Returns (demand_signals, supply_events) tuple.
@@ -492,6 +611,10 @@ class NSEFilingCrawler:
             total_articles, len(demand_signals), len(supply_events),
         )
         return demand_signals, supply_events
+
+    def crawl(self) -> list:
+        """Alias for main.py compatibility."""
+        return self.run()
 
     def _fetch_feed(self, url: str) -> list:
         try:
@@ -644,6 +767,10 @@ class DRTSARFAESICrawler:
         import urllib3
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+    def crawl(self) -> list:
+        """Alias — main.py calls .crawl()."""
+        return self.run()
+
     def run(self, cutoff_hours: int = 48) -> List[dict]:
         events = []
         cutoff = datetime.now(timezone.utc) - timedelta(hours=cutoff_hours)
@@ -703,13 +830,17 @@ class DRTSARFAESICrawler:
 
 
 # ═══════════════════════════════════════════════════════════════
-# MCA INCORPORATION CRAWLER (was mca_crawler_patch.py)
+# MCA INCORPORATION CRAWLER
 # ═══════════════════════════════════════════════════════════════
-:
+class MCAIncorporationCrawler(BaseCrawler):
     """
     Crawls MCA for new company incorporations. Applies deep name + context
     intelligence to filter for genuine CRE demand signals.
     """
+
+    def crawl(self) -> list:
+        """Alias for main.py compatibility."""
+        return self.run()
 
     def __init__(self, session: requests.Session = None, supabase_client=None):
         self.sess = session or requests.Session()
@@ -732,6 +863,10 @@ class DRTSARFAESICrawler:
 
         logger.info("MCA: %d signals (blocked %d low-signal)", len(signals), blocked)
         return signals
+
+    def crawl(self) -> list:
+        """Alias for main.py compatibility."""
+        return self.run()
 
     def _score_incorporation(self, data: dict) -> Optional[dict]:
         """
@@ -946,4 +1081,21 @@ def _extract_location_from_cin_address(cin: str, address: str) -> str:
                 return city
 
     return "India"
+
+
+
+class LinkedInHiringCrawler(BaseCrawler):
+    """
+    LinkedIn hiring surge detector.
+    Currently returns empty list — LinkedIn blocks automated scraping.
+    Signals are captured via RSS_NEWS and MCA crawlers instead.
+    """
+    SOURCE_NAME = "LINKEDIN_JOBS"
+
+    def crawl(self) -> list:
+        self.logger.info("LinkedIn: 0 hiring surges (scraping blocked)")
+        return []
+
+    def run(self) -> list:
+        return self.crawl()
 

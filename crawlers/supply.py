@@ -23,8 +23,12 @@ from typing import List, Optional
 import requests
 from bs4 import BeautifulSoup
 
+from crawlers.base import BaseCrawler, DistressEvent
+# DRTSARFAESICrawler lives in demand.py — re-export for main.py
+from crawlers.demand import DRTSARFAESICrawler  # noqa: F401
+
 logger_ibapi = logging.getLogger("crawler.IBAPI")
-logger_psu = logging.getLogger("crawler.PSU_Banks")
+logger_psu   = logging.getLogger("crawler.PSU_Banks")
 logger_narcl = logging.getLogger("crawler.NARCL_ARC")
 
 HEADERS = {
@@ -78,6 +82,10 @@ class IBAPIAuctionCrawler:
     def __init__(self, session: requests.Session = None):
         self.sess = session or requests.Session()
         self.sess.headers.update(HEADERS)
+
+    def crawl(self) -> list:
+        """Alias — main.py calls .crawl()."""
+        return self.run()
 
     def run(self) -> List[dict]:
         events = []
@@ -280,6 +288,10 @@ class MultiPSUBankCrawler:
         import urllib3
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+    def crawl(self) -> list:
+        """Alias — main.py calls .crawl()."""
+        return self.run()
+
     def run(self) -> List[dict]:
         events = []
         for page_url, bank_name in PSU_BANK_PAGES:
@@ -432,6 +444,10 @@ class NARCLARCCrawler:
         import urllib3
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+    def crawl(self) -> list:
+        """Alias — main.py calls .crawl()."""
+        return self.run()
+
     def run(self) -> List[dict]:
         events = []
         seen = set()
@@ -492,3 +508,133 @@ class NARCLARCCrawler:
 
         logger_narcl.info("NARCL/ARC: %d events", len(events))
         return events
+
+
+class BankAuctionsCoInCrawler(BaseCrawler):
+    """BankAuctions.co.in — delegated to IBAPIAuctionCrawler._scrape_bankauctions()."""
+    SOURCE_NAME = "BankAuctions.co.in"
+
+    def crawl(self) -> list:
+        # Delegate to IBAPI crawler's fallback scraper
+        return IBAPIAuctionCrawler().run()
+
+    def run(self) -> list:
+        return self.crawl()
+
+
+class IBBINCLTCrawler(BaseCrawler):
+    """IBBI / NCLT RSS crawler for insolvency proceedings."""
+    SOURCE_NAME = "IBBI_NCLT"
+
+    IBBI_FEEDS = [
+        "https://ibbi.gov.in/home/recent-updates/rss",
+        "https://nclt.gov.in/feeds/rss",
+    ]
+    IBBI_KEYWORDS = re.compile(
+        r"(?:cirp|insolvency|liquidation|resolution\s+plan|"
+        r"corporate\s+debtor|resolution\s+professional|"
+        r"nclt|nclat|admitted|order|bench)",
+        re.IGNORECASE,
+    )
+
+    def crawl(self) -> list:
+        import feedparser
+        events = []
+        seen = set()
+        for url in self.IBBI_FEEDS:
+            try:
+                r = self._session.get(url, timeout=15)
+                if r.status_code != 200:
+                    continue
+                feed = feedparser.parse(r.content)
+                for entry in feed.entries:
+                    title   = getattr(entry, "title", "") or ""
+                    summary = getattr(entry, "summary", "") or ""
+                    link    = getattr(entry, "link", "") or "#"
+                    full    = f"{title} {summary}"
+                    if not self.IBBI_KEYWORDS.search(full):
+                        continue
+                    uid = hashlib.md5(title.lower().encode()).hexdigest()
+                    if uid in seen:
+                        continue
+                    seen.add(uid)
+                    from nlp.engine import extract_location
+                    events.append(self.make_event(
+                        company_name=title.split("—")[0].split("-")[0].strip()[:100] or "IBBI",
+                        keyword="cirp",
+                        category="cirp",
+                        url=link,
+                        headline=title[:500],
+                        snippet=summary[:500],
+                        location=extract_location(full),
+                        asset_class="commercial",
+                    ).to_dict())
+            except Exception as e:
+                self.logger.warning("IBBI feed %s: %s", url, e)
+        self.logger.info("IBBI/NCLT: %d events", len(events))
+        return events
+
+    def run(self) -> list:
+        return self.crawl()
+
+
+class FinancialMediaCrawler(BaseCrawler):
+    """Financial media RSS feeds for distress signals."""
+    SOURCE_NAME = "Financial_Media"
+
+    FEEDS = [
+        "https://economictimes.indiatimes.com/wealth/borrow/rss.cms",
+        "https://www.thehindubusinessline.com/money-and-banking/rss.cms",
+        "https://www.moneycontrol.com/rss/latestnews.xml",
+        "https://www.financialexpress.com/economy/feed/",
+    ]
+    DISTRESS_RE = re.compile(
+        r"(?:npa|sarfaesi|drt|nclt|insolvency|liquidation|"
+        r"bank\s+auction|e-auction|recovery|stressed\s+asset|"
+        r"one\s+time\s+settlement|ots|haircut|write.off)",
+        re.IGNORECASE,
+    )
+
+    def crawl(self) -> list:
+        import feedparser
+        from datetime import datetime, timezone, timedelta
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=48)
+        events = []
+        seen = set()
+        for url in self.FEEDS:
+            try:
+                r = self._session.get(url, timeout=12)
+                if r.status_code not in (200,):
+                    self.logger.warning("HTTP %d for %s", r.status_code, url)
+                    continue
+                feed = feedparser.parse(r.content)
+                for entry in feed.entries:
+                    title   = getattr(entry, "title",   "") or ""
+                    summary = getattr(entry, "summary", "") or ""
+                    link    = getattr(entry, "link",    "") or "#"
+                    full    = f"{title} {summary}"
+                    if not self.DISTRESS_RE.search(full):
+                        continue
+                    uid = hashlib.md5(title.lower().encode()).hexdigest()
+                    if uid in seen:
+                        continue
+                    seen.add(uid)
+                    from nlp.engine import extract_location, detect_distress_keywords
+                    kws = detect_distress_keywords(full)
+                    events.append(self.make_event(
+                        company_name=title.split(":")[0].strip()[:80] or "Media",
+                        keyword=kws[0] if kws else "distress",
+                        category="media",
+                        url=link,
+                        headline=title[:500],
+                        snippet=summary[:500],
+                        location=extract_location(full),
+                        asset_class="commercial",
+                    ).to_dict())
+            except Exception as e:
+                self.logger.warning("Media feed %s: %s", url, e)
+        self.logger.info("Financial Media: %d distress events", len(events))
+        return events
+
+    def run(self) -> list:
+        return self.crawl()
